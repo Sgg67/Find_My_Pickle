@@ -5,7 +5,7 @@ import 'package:find_my_pickle/viewModel/search_viewmodel.dart';
 import 'package:find_my_pickle/view/court_results_page.dart';
 
 class CourtResultsByLocation extends StatefulWidget {
-  const CourtResultsByLocation({Key? key}) : super(key: key);
+  const CourtResultsByLocation({super.key});
 
   @override
   State<CourtResultsByLocation> createState() => _CourtResultsByLocationState();

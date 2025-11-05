@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../viewModel/favorites_viewModel.dart';
 
 class FavoritesPage extends StatelessWidget {
-  const FavoritesPage({Key? key}) : super(key: key);
+  const FavoritesPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -124,7 +124,7 @@ class FavoritesPage extends StatelessWidget {
 class FavoriteCourtCard extends StatelessWidget {
   final Map<String, dynamic> court;
 
-  const FavoriteCourtCard({Key? key, required this.court}) : super(key: key);
+  const FavoriteCourtCard({super.key, required this.court});
 
   @override
   Widget build(BuildContext context) {
@@ -152,7 +152,7 @@ class FavoriteCourtCard extends StatelessWidget {
             child: Column(
               children: [
                 // Image - Exactly 120px
-                Container(
+                SizedBox(
                   height: 120,
                   width: double.infinity,
                   child: _buildCourtImage(photoUrl),

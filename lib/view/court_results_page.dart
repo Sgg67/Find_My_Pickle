@@ -6,10 +6,10 @@ class CourtResultsPage extends StatelessWidget {
   final String searchQuery;
 
   const CourtResultsPage({
-    Key? key,
+    super.key,
     required this.courts,
     required this.searchQuery,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +59,7 @@ class CourtResultsPage extends StatelessWidget {
 class CourtCard extends StatelessWidget {
   final Map<String, dynamic> court;
 
-  const CourtCard({Key? key, required this.court}) : super(key: key);
+  const CourtCard({super.key, required this.court});
 
   @override
   Widget build(BuildContext context) {
@@ -86,7 +86,7 @@ class CourtCard extends StatelessWidget {
         child: Column(
           children: [
             // Image - Exactly 120px
-            Container(
+            SizedBox(
               height: 120,
               width: double.infinity,
               child: _buildCourtImage(photoUrl),

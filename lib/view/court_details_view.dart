@@ -7,7 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 class CourtDetailPage extends StatefulWidget {
   final Map<String, dynamic> court;
 
-  const CourtDetailPage({Key? key, required this.court}) : super(key: key);
+  const CourtDetailPage({super.key, required this.court});
 
   @override
   State<CourtDetailPage> createState() => _CourtDetailPageState();
@@ -39,7 +39,7 @@ class _CourtDetailPageState extends State<CourtDetailPage> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Court Image
-              Container(
+              SizedBox(
                 height: 250,
                 width: double.infinity,
                 child: photoUrl != null
