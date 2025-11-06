@@ -1,4 +1,5 @@
 import 'package:animated_text_kit/animated_text_kit.dart';
+import 'package:find_my_pickle/view/authentication_page.dart';
 import 'package:find_my_pickle/view/search.dart';
 import 'package:flutter/material.dart';
 import 'package:custom_button_builder/custom_button_builder.dart';
@@ -13,7 +14,7 @@ class HomePage extends StatelessWidget {
         child: Column(
           children: [
             Padding(
-              padding: EdgeInsets.all(40), // ← FIXED: EdgeInsets.all instead of EdgeInsetsGeometry.all
+              padding: EdgeInsets.all(40),
               child: Container(
                 width: 300,
                 height: 300,
@@ -78,6 +79,32 @@ class ButtonWithText extends StatelessWidget {
   }
 }
 
+class authenticationButton extends StatelessWidget {
+  const authenticationButton({super.key});
+  
+  @override
+  Widget build(BuildContext context) {
+    return CustomButton(
+      width: 300,
+      backgroundColor: Colors.green,
+      isThreeD: true,
+      height: 50,
+      borderRadius: 25,
+      padding:EdgeInsets.all(20),
+      animate: true,
+      margin: const EdgeInsets.all(80),
+      onPressed: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => AuthenticationPage(),
+          )
+        );
+      },
+      child: Text("Sign in"),
+    );
+  }
+}
 class TextBox extends StatelessWidget {
   const TextBox({super.key});
   

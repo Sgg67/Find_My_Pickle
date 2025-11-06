@@ -1,3 +1,4 @@
+// create a model that will be used throughout the view models
 class CourtListModel {
   final String name;
   final String vicinity;

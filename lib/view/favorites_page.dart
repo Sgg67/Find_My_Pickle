@@ -3,12 +3,14 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../viewModel/favorites_viewModel.dart';
 
+// create a favorite page 
 class FavoritesPage extends StatelessWidget {
   const FavoritesPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // write on the app bar Favorite Courts
       appBar: AppBar(
         title: Row(
           children: [
@@ -19,6 +21,7 @@ class FavoritesPage extends StatelessWidget {
         ),
         backgroundColor: Colors.blue,
         actions: [
+          // use consumer to update the view model for favorites
           Consumer<FavoritesViewModel>(
             builder: (context, viewModel, child) {
               if (viewModel.favoriteCourts.isEmpty) return const SizedBox();
@@ -72,6 +75,7 @@ class FavoritesPage extends StatelessWidget {
     );
   }
 
+  // build the setup of the favorites
   Widget _buildFavoritesGrid(List<Map<String, dynamic>> favorites, BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(16),
@@ -91,6 +95,7 @@ class FavoritesPage extends StatelessWidget {
     );
   }
 
+  // show the UI when a favorite is removed from the list
   void _showClearAllDialog(BuildContext context, FavoritesViewModel viewModel) {
     showDialog(
       context: context,

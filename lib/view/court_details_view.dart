@@ -1,10 +1,12 @@
-import 'package:find_my_pickle/viewModel/favorites_viewModel.dart';
+// add necessary libraries and view models
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:find_my_pickle/viewModel/favorites_viewModel.dart';
+import 'package:find_my_pickle/viewModel/directions_viewModel.dart'; // Add this import
 
 class CourtDetailPage extends StatefulWidget {
+  // declare a map for a court
   final Map<String, dynamic> court;
 
   const CourtDetailPage({super.key, required this.court});
@@ -14,18 +16,27 @@ class CourtDetailPage extends StatefulWidget {
 }
 
 class _CourtDetailPageState extends State<CourtDetailPage> {
+  // Initialize Directions view model
+  late DirectionsViewModel _directionsViewModel;
+
+  // initialize the directions view model
+  @override
+  void initState() {
+    super.initState();
+    _directionsViewModel = DirectionsViewModel();
+  }
+
   @override
   Widget build(BuildContext context) {
+    // necessary variables that will be used in UI
     final name = widget.court['name'] ?? 'Unknown Court';
     final vicinity = widget.court['vicinity'] ?? 'No address available';
     final photoUrl = widget.court['photo_url'];
     final rating = widget.court['rating']?.toString() ?? 'No rating';
-    final types = widget.court['types'] as List<dynamic>? ?? [];
     final openNow = widget.court['opening_hours']?['open_now'] as bool?;
-    final geometry = widget.court['geometry'];
-    final location = geometry?['location'];
 
     return Scaffold(
+      // add a blue app bar
       appBar: AppBar(
         title: const Text('Court Details'),
         backgroundColor: Colors.blue,
@@ -38,7 +49,7 @@ class _CourtDetailPageState extends State<CourtDetailPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Court Image
+              // Image section
               SizedBox(
                 height: 250,
                 width: double.infinity,
@@ -71,7 +82,7 @@ class _CourtDetailPageState extends State<CourtDetailPage> {
                       ),
               ),
 
-              // Court Details
+              // Details section
               Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(
@@ -87,7 +98,7 @@ class _CourtDetailPageState extends State<CourtDetailPage> {
                     ),
                     const SizedBox(height: 8),
 
-                    // Rating
+                    // Rating in the details section
                     Row(
                       children: [
                         const Icon(Icons.star, color: Colors.amber, size: 20),
@@ -117,21 +128,20 @@ class _CourtDetailPageState extends State<CourtDetailPage> {
                     ),
                     const SizedBox(height: 16),
 
-                    // Address Section
+                    // Adress is on the details section
                     _buildDetailSection(
                       icon: Icons.location_on,
                       title: 'Address',
                       content: vicinity,
                     ),
-                    // Action Buttons
+
+                    // Directions and Share Buttons
                     const SizedBox(height: 24),
                     Row(
                       children: [
                         Expanded(
                           child: ElevatedButton.icon(
-                            onPressed: () {
-                              _openDirections(context, name, vicinity);
-                            },
+                            onPressed: () => _handleGetDirections(context, name, vicinity),
                             icon: const Icon(Icons.directions),
                             label: const Text('Get Directions'),
                             style: ElevatedButton.styleFrom(
@@ -142,9 +152,7 @@ class _CourtDetailPageState extends State<CourtDetailPage> {
                         const SizedBox(width: 12),
                         Expanded(
                           child: OutlinedButton.icon(
-                            onPressed: () {
-                              _showShareMessage(context);
-                            },
+                            onPressed: () => _handleShare(context),
                             icon: const Icon(Icons.share),
                             label: const Text('Share'),
                           ),
@@ -152,7 +160,6 @@ class _CourtDetailPageState extends State<CourtDetailPage> {
                       ],
                     ),
                     
-                    // Extra padding at the bottom to ensure content is fully visible
                     const SizedBox(height: 20),
                   ],
                 ),
@@ -164,6 +171,7 @@ class _CourtDetailPageState extends State<CourtDetailPage> {
     );
   }
 
+  // details section background set up
   Widget _buildDetailSection({required IconData icon, required String title, required String content}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -193,6 +201,7 @@ class _CourtDetailPageState extends State<CourtDetailPage> {
     );
   }
 
+  // add the favorite button on the top of the screen so you can add to favorites
   Widget _buildFavoriteButton() {
     return Consumer<FavoritesViewModel>(
       builder: (context, favoritesViewModel, child) {
@@ -203,106 +212,43 @@ class _CourtDetailPageState extends State<CourtDetailPage> {
             isFavorite ? Icons.favorite : Icons.favorite_border,
             color: isFavorite ? Colors.red : Colors.white,
           ),
-          onPressed: () {
-            favoritesViewModel.toggleFavorite(widget.court);
-
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  isFavorite ? 'Removed from favorites' : 'Added to favorites'
-                ),
-                duration: const Duration(seconds: 2),
-              ),
-            );
-          },
+          onPressed: () => _handleFavoriteToggle(context, favoritesViewModel, isFavorite),
         );
       },
     );
   }
 
-  Future<void> _openDirections(BuildContext context, String name, String address) async {
-    final geometry = widget.court['geometry'];
-    final location = geometry?['location'];
-    
-    if (location != null) {
-      final double? lat = location['lat']?.toDouble();
-      final double? lng = location['lng']?.toDouble();
-      
-      if (lat != null && lng != null) {
-        // Option 1: Open with coordinates (most accurate)
-        final String googleMapsUrl = 'https://www.google.com/maps/dir/?api=1&destination=$lat,$lng&travelmode=driving';
-        final String appleMapsUrl = 'https://maps.apple.com/?daddr=$lat,$lng&dirflg=d';
-        
-        // Option 2: Open with address (fallback)
-        final String addressMapsUrl = 'https://www.google.com/maps/search/?api=1&query=${Uri.encodeComponent('$name $address')}';
-        
-        try {
-          // Try Google Maps first
-          if (await canLaunchUrl(Uri.parse(googleMapsUrl))) {
-            await launchUrl(Uri.parse(googleMapsUrl));
-          } 
-          // Try Apple Maps as fallback
-          else if (await canLaunchUrl(Uri.parse(appleMapsUrl))) {
-            await launchUrl(Uri.parse(appleMapsUrl));
-          }
-          // Try with address as last resort
-          else if (await canLaunchUrl(Uri.parse(addressMapsUrl))) {
-            await launchUrl(Uri.parse(addressMapsUrl));
-          } else {
-            _showNoMapsAppDialog(context);
-          }
-        } catch (e) {
-          _showNoMapsAppDialog(context);
-        }
-      } else {
-        // Fallback to address-based navigation if coordinates aren't available
-        final String addressMapsUrl = 'https://www.google.com/maps/search/?api=1&query=${Uri.encodeComponent('$name $address')}';
-        
-        try {
-          if (await canLaunchUrl(Uri.parse(addressMapsUrl))) {
-            await launchUrl(Uri.parse(addressMapsUrl));
-          } else {
-            _showNoMapsAppDialog(context);
-          }
-        } catch (e) {
-          _showNoMapsAppDialog(context);
-        }
-      }
-    } else {
-      // If no geometry data, use address
-      final String addressMapsUrl = 'https://www.google.com/maps/search/?api=1&query=${Uri.encodeComponent('$name $address')}';
-      
-      try {
-        if (await canLaunchUrl(Uri.parse(addressMapsUrl))) {
-          await launchUrl(Uri.parse(addressMapsUrl));
-        } else {
-          _showNoMapsAppDialog(context);
-        }
-      } catch (e) {
-        _showNoMapsAppDialog(context);
-      }
+  // call the view model for directions
+  Future<void> _handleGetDirections(BuildContext context, String name, String address) async {
+    try {
+      await _directionsViewModel.openDirections(
+        court: widget.court,
+        name: name,
+        address: address,
+      );
+    } catch (e) {
+      _showNoMapsAppDialog(context);
     }
   }
 
-  void _showNoMapsAppDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('No Maps App Found'),
-        content: const Text('Please install Google Maps or another navigation app to get directions.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('OK'),
-          ),
-        ],
+  // set up UI logic when something is favorited and then clicked again
+  void _handleFavoriteToggle(BuildContext context, FavoritesViewModel favoritesViewModel, bool isFavorite) {
+    favoritesViewModel.toggleFavorite(widget.court);
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          isFavorite ? 'Removed from favorites' : 'Added to favorites'
+        ),
+        duration: const Duration(seconds: 2),
       ),
     );
   }
 
-  Future<void> _showShareMessage(BuildContext context) async {
+  // UI logic for sharing a court
+  Future<void> _handleShare(BuildContext context) async {
     final name = widget.court['name'] ?? 'Unknown Court';
-    final vicinity = widget.court['vicinity'] ?? 'No adress available';
+    final vicinity = widget.court['vicinity'] ?? 'No address available';
     final rating = widget.court['rating']?.toString() ?? 'No rating';
 
     final String shareText = '''
@@ -320,12 +266,30 @@ class _CourtDetailPageState extends State<CourtDetailPage> {
         subject: "Pickleball Court: $name",
       );
     } catch(e) {
-      _showShareError();
+      _showShareError(context);
     }
   }
 
-  void _showShareError(){
-     ScaffoldMessenger.of(context).showSnackBar(
+  // UI-only helper methods for dialogs and error messages
+  void _showNoMapsAppDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('No Maps App Found'),
+        content: const Text('Please install Google Maps or another navigation app to get directions.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // show on the screen when you can not share a court
+  void _showShareError(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Unable to share at the moment. Please try again.'),
         duration: Duration(seconds: 2),

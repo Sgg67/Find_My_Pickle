@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "617928126569",
+    "project_id": "find-my-pickle",
+    "storage_bucket": "find-my-pickle.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:617928126569:android:c08acfaa12921f0ca332f8",
+        "android_client_info": {
+          "package_name": "com.example.find_my_pickle"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "617928126569-jmpr8bn98gjrvgkvt2r2m0rk31025o8f.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBSdV0HmI7DZhYbu5JPWOO1xKiyCrMvPYA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "617928126569-jmpr8bn98gjrvgkvt2r2m0rk31025o8f.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

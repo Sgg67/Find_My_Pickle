@@ -1,6 +1,8 @@
+// import courts view
 import 'package:find_my_pickle/view/court_details_view.dart';
 import 'package:flutter/material.dart';
 
+// create the courts result page for regular search
 class CourtResultsPage extends StatelessWidget {
   final List<Map<String, dynamic>> courts;
   final String searchQuery;
@@ -14,6 +16,7 @@ class CourtResultsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      // create blue app bar
       appBar: AppBar(
         title: Text('Courts near $searchQuery'),
         backgroundColor: Colors.blue,
@@ -63,6 +66,7 @@ class CourtCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // use neccesary variables for the UI
     final name = court['name'] ?? 'Unknown Court';
     final vicinity = court['vicinity'] ?? 'No address available';
     final photoUrl = court['photo_url'];
@@ -85,14 +89,12 @@ class CourtCard extends StatelessWidget {
         ),
         child: Column(
           children: [
-            // Image - Exactly 120px
+            // set up the images in the list of courts
             SizedBox(
               height: 120,
               width: double.infinity,
               child: _buildCourtImage(photoUrl),
             ),
-            
-            // Content - Exactly 80px
             Container(
               height: 80,
               padding: EdgeInsets.symmetric(horizontal: 8, vertical: 6),
@@ -100,7 +102,6 @@ class CourtCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // Name - Single line
                   Text(
                     name,
                     style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
@@ -108,7 +109,7 @@ class CourtCard extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                   ),
                   
-                  // Address - Two lines max
+                  // have the adress in the list
                   SizedBox(
                     height: 28,
                     child: Text(
@@ -119,7 +120,7 @@ class CourtCard extends StatelessWidget {
                     ),
                   ),
                   
-                  // Rating
+                  // add te rating for each court in the list
                   Row(
                     children: [
                       Icon(Icons.star, color: Colors.amber, size: 12),
@@ -136,6 +137,7 @@ class CourtCard extends StatelessWidget {
     );
   }
 
+  // add the cubes in te list of courts that are displayed in the UI
   Widget _buildCourtImage(String? photoUrl) {
     if (photoUrl == null) {
       return Container(

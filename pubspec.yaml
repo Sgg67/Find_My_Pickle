@@ -41,6 +41,10 @@ dependencies:
   url_launcher: ^6.1.11
   share_plus: ^7.0.1
   geolocator: ^14.0.2
+  firebase_auth: ^4.16.0
+  firebase_core: ^2.24.0
+  cloud_firestore: ^4.9.1
+  google_sign_in: ^6.1.5
 
 dev_dependencies:
   flutter_test:

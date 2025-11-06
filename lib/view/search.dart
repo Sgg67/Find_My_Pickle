@@ -63,7 +63,6 @@ class _SearchPageState extends State<SearchPage> {
               style: TextStyle(fontSize: 14, color: Colors.grey[500]),
             ),
             SizedBox(height: 32),
-            // Optional: Add a direct button to favorites
             ElevatedButton.icon(
               onPressed: () {
                 Navigator.push(
@@ -111,6 +110,7 @@ class _SearchPageState extends State<SearchPage> {
   }
 }
 
+// create a custom search bar class
 class CustomSearchBar extends SearchDelegate {
   final SearchViewModel viewModel;
   bool _isSearching = false;
@@ -141,7 +141,7 @@ class CustomSearchBar extends SearchDelegate {
 
   @override 
   Widget buildResults(BuildContext context) {
-    // Only start search if not already searching
+    // search for results if searching did not start
     if (!_isSearching) {
       _isSearching = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -154,9 +154,7 @@ class CustomSearchBar extends SearchDelegate {
   
   Future<void> _performSearch(BuildContext context, String query) async {
     try {
-      print('Starting search for: $query');
       await viewModel.searchCourts(query);
-      print('Search completed. Courts found: ${viewModel.courts.length}');
       
       // Reset searching flag
       _isSearching = false;
@@ -178,7 +176,7 @@ class CustomSearchBar extends SearchDelegate {
       
     } catch (e) {
       print('Search error: $e');
-      _isSearching = false; // Reset flag on error
+      _isSearching = false;
       
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -248,7 +246,7 @@ class CustomSearchBar extends SearchDelegate {
 
   @override
   void close(BuildContext context, result) {
-    _isSearching = false; // Reset flag when closing
+    _isSearching = false;
     super.close(context, result);
   }
 }

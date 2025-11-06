@@ -4,9 +4,10 @@ import 'package:find_my_pickle/viewModel/location_viewmodel.dart';
 import 'package:find_my_pickle/viewModel/search_viewmodel.dart';
 import 'package:find_my_pickle/view/court_results_page.dart';
 
+// create a view that is the results page for view that is clicked by location
 class CourtResultsByLocation extends StatefulWidget {
   const CourtResultsByLocation({super.key});
-
+  // create the result state
   @override
   State<CourtResultsByLocation> createState() => _CourtResultsByLocationState();
 }
@@ -22,32 +23,32 @@ class _CourtResultsByLocationState extends State<CourtResultsByLocation> {
     });
 
     try {
-      // Step 1: Check if location services are enabled
+      // check to see if location is enabled
       final serviceEnabled = await _locationViewModel.isLocationServiceEnabled();
       if (!serviceEnabled) {
         _showLocationServiceError();
         return;
       }
 
-      // Step 2: Check and request permissions
+      // request permission if not enabled
       final permission = await _handleLocationPermissions();
       if (!permission) {
-        return; // User denied permission
+        return;
       }
 
-      // Step 3: Get coordinates
+      // Get coordinates
       final locationResult = await _locationViewModel.getCurrentCoordinates();
       
       if (locationResult['success'] == true && _locationViewModel.currentPosition != null) {
         final lat = _locationViewModel.currentPosition!.latitude;
         final lng = _locationViewModel.currentPosition!.longitude;
         
-        // Step 4: Search for courts near this location
+        // Search for courts near a certain latitude and longitude
         await _searchViewModel.getCourtsByLocation(lat, lng);
         
         if (!mounted) return;
         
-        // Step 5: Navigate to results page
+        // Navigate to the results page
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -58,7 +59,7 @@ class _CourtResultsByLocationState extends State<CourtResultsByLocation> {
           ),
         );
       } else {
-        // Show error message
+        // Show error message if the results do not show up
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(locationResult['message'] ?? 'Failed to get location')),
         );
