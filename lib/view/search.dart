@@ -1,3 +1,4 @@
+import 'package:find_my_pickle/services/authentication_service.dart';
 import 'package:find_my_pickle/view/court_results_by_location.dart';
 import 'package:find_my_pickle/view/court_results_page.dart';
 import 'package:find_my_pickle/viewModel/search_viewmodel.dart';
@@ -18,7 +19,7 @@ class _SearchPageState extends State<SearchPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Find a court near you"),
+        title: const Text("Find a court"),
         backgroundColor: Colors.blue,
         actions: [
           // Favorites button
@@ -43,7 +44,16 @@ class _SearchPageState extends State<SearchPage> {
               );
             },
             icon: const Icon(Icons.search),
-          )
+          ),
+          IconButton(
+            onPressed: () {
+              AuthService.signout(
+                context: context,
+              );
+            },
+            icon: const Icon(Icons.logout),
+          ),
+          
         ]
       ),
       body: Center(
