@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 // get the pickleball courts near you using the google maps places api
 class CourtsService {
   // add a const api key
-  static const String _apiKey = "AIzaSyD_ocE7U54PBsbwJh4E3SbhhknQm0OiGNg";
+  static const String _apiKey = "AIzaSyDupd0-JHu_kCxmVuPmn-QuPcHFGeYjDDY";
   // set the key word to pickle ball courts
   static const String _keyword = "pickleball court";
 

@@ -113,6 +113,16 @@ class AuthService {
     }
   }
 
+  static Future forgotPassword({required String email}) async {
+      try {
+             await _firebaseAuth.sendPasswordResetEmail(email: email);
+          } on FirebaseAuthException catch (err) {
+             throw Exception(err.message.toString());
+          } catch (err) {
+             throw Exception(err.toString());
+          }
+      }
+
    static Future<void> signout({
     required BuildContext context
   }) async {

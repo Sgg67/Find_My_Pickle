@@ -7,11 +7,17 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class Signup extends StatelessWidget {
+class Signup extends StatefulWidget {
   Signup({super.key});
 
+  @override
+  State<Signup> createState() => _SigninState();
+}
+
+  class _SigninState extends State<Signup> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  bool _isObscure = true;
 
   @override
   Widget build(BuildContext context) {
@@ -107,13 +113,39 @@ class Signup extends StatelessWidget {
             )
           ),
         ),
-        const SizedBox(height: 16,),
+        const SizedBox(height: 16),
         TextField(
+          obscureText: _isObscure,
           controller: _passwordController,
-          obscureText: true,
           decoration: InputDecoration(
             filled: true,
-            fillColor: const Color(0xffF7F7F9) ,
+            fillColor: const Color(0xffF7F7F9),
+            hintText: 'Enter your password',
+            hintStyle: const TextStyle(
+              color: Color(0xff6A6A6A),
+            ),
+            prefixIcon: Icon(
+              Icons.lock,
+              color: Color(0xfff28800),
+            ),
+            suffixIcon: IconButton(
+              padding: const EdgeInsets.all(0),
+              iconSize: 20.0,
+              icon: _isObscure
+                  ? const Icon(
+                      Icons.visibility_off,
+                      color: Colors.grey,
+                    )
+                  : const Icon(
+                      Icons.visibility,
+                      color: Colors.black,
+                    ),
+              onPressed: () {
+                setState(() {
+                  _isObscure = !_isObscure;
+                });
+              },
+            ),
             border: OutlineInputBorder(
               borderSide: BorderSide.none,
               borderRadius: BorderRadius.circular(14)

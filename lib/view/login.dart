@@ -6,11 +6,17 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class Login extends StatelessWidget {
+class Login extends StatefulWidget {
   Login({super.key});
 
+  @override
+  State<Login> createState() => _LoginState();
+}
+
+class _LoginState extends State<Login> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  bool _isObscure = true;
 
   @override
   Widget build(BuildContext context) {
@@ -124,13 +130,39 @@ class Login extends StatelessWidget {
             )
           ),
         ),
-        const SizedBox(height: 16,),
+        const SizedBox(height: 16),
         TextField(
-          obscureText: true,
+          obscureText: _isObscure,
           controller: _passwordController,
           decoration: InputDecoration(
             filled: true,
-            fillColor: const Color(0xffF7F7F9) ,
+            fillColor: const Color(0xffF7F7F9),
+            hintText: 'Enter your password',
+            hintStyle: const TextStyle(
+              color: Color(0xff6A6A6A),
+            ),
+            prefixIcon: Icon(
+              Icons.lock,
+              color: Color(0xfff28800),
+            ),
+            suffixIcon: IconButton(
+              padding: const EdgeInsets.all(0),
+              iconSize: 20.0,
+              icon: _isObscure
+                  ? const Icon(
+                      Icons.visibility_off,
+                      color: Colors.grey,
+                    )
+                  : const Icon(
+                      Icons.visibility,
+                      color: Colors.black,
+                    ),
+              onPressed: () {
+                setState(() {
+                  _isObscure = !_isObscure;
+                });
+              },
+            ),
             border: OutlineInputBorder(
               borderSide: BorderSide.none,
               borderRadius: BorderRadius.circular(14)
@@ -188,13 +220,48 @@ class Login extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => Signup()
+                        builder: (context) => Signup(),
                       ),
                     );
                   }
               ),
           ]
         )
+      ),
+    );
+  }
+}
+
+class ResetPassword extends StatelessWidget {
+  const ResetPassword({super.key});
+  
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => (),
+          )
+        );
+      },
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: Container(
+          padding: EdgeInsets.all(5),
+          child: Text(
+            "Continue As Guest",
+            style: TextStyle(
+              fontSize: 16,
+              color: Colors.blue,
+              fontWeight: FontWeight.bold,
+              decoration: TextDecoration.underline,
+              decorationColor: Colors.blue,
+              decorationThickness: 2.0,
+            ),
+          ),
+        ),
       ),
     );
   }

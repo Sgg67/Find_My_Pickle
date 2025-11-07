@@ -179,10 +179,10 @@ class TextBox extends StatelessWidget {
             TyperAnimatedText("   Find a 🥒 court"),
             TyperAnimatedText("   Near you today"),
           ],
-          repeatForever: true, // Added to make animation repeat
-          pause: const Duration(milliseconds: 1000), // Pause between animations
-          displayFullTextOnTap: true, // Optional: show full text when tapped
-          stopPauseOnTap: true, // Optional: stop pause when tapped
+          repeatForever: true, 
+          pause: const Duration(milliseconds: 1000), 
+          displayFullTextOnTap: true,
+          stopPauseOnTap: true, 
         ),
       ),
     );
