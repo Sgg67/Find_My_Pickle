@@ -1,6 +1,5 @@
-import 'package:find_my_pickle/services/authentication_service.dart';
+import 'package:find_my_pickle/services/authentication_service.dart'; // Make sure this path is correct
 import 'package:find_my_pickle/view/signup.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -232,6 +231,7 @@ class _LoginState extends State<Login> {
   }
 }
 
+// FIXED: Either remove ResetPassword or implement it properly
 class ResetPassword extends StatelessWidget {
   const ResetPassword({super.key});
   
@@ -239,19 +239,20 @@ class ResetPassword extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => (),
-          )
-        );
+        // TODO: Implement proper navigation for password reset
+        // Navigator.push(
+        //   context,
+        //   MaterialPageRoute(
+        //     builder: (context) => ResetPasswordPage(), // Add proper page
+        //   )
+        // );
       },
       child: MouseRegion(
         cursor: SystemMouseCursors.click,
         child: Container(
           padding: EdgeInsets.all(5),
           child: Text(
-            "Continue As Guest",
+            "Forgot Password?", // Changed text to be more appropriate
             style: TextStyle(
               fontSize: 16,
               color: Colors.blue,

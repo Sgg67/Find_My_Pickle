@@ -81,7 +81,6 @@ class AuthService {
         password: password
       );
 
-      // Force navigation - login is successful despite the type casting error
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
@@ -90,10 +89,8 @@ class AuthService {
       );
       
     } catch (e) {
-      // If we get any error (including type casting), check if user is actually logged in
       User? currentUser = FirebaseAuth.instance.currentUser;
       if (currentUser != null) {
-        // User is logged in despite the error, proceed to navigation
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -115,7 +112,7 @@ class AuthService {
 
   static Future forgotPassword({required String email}) async {
       try {
-             await _firebaseAuth.sendPasswordResetEmail(email: email);
+             await FirebaseAuth.instance.sendPasswordResetEmail(email: email); // FIXED: _FirebaseAuth → FirebaseAuth.instance
           } on FirebaseAuthException catch (err) {
              throw Exception(err.message.toString());
           } catch (err) {
