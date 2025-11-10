@@ -1,9 +1,11 @@
-import 'package:find_my_pickle/services/authentication_service.dart'; // Make sure this path is correct
+import 'package:find_my_pickle/services/authentication_service.dart';
 import 'package:find_my_pickle/view/signup.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter/services.dart';
 
 class Login extends StatefulWidget {
   Login({super.key});
@@ -22,7 +24,6 @@ class _LoginState extends State<Login> {
     return Scaffold(
       backgroundColor: Colors.white,
       resizeToAvoidBottomInset: true,
-      bottomNavigationBar: _signup(context),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -64,12 +65,16 @@ class _LoginState extends State<Login> {
                   ),
                 ),
               ),
-              const SizedBox(height: 80,),
+              const SizedBox(height: 80),
                _emailAddress(),
-               const SizedBox(height: 20,),
+               const SizedBox(height: 20),
                _password(),
-               const SizedBox(height: 50,),
+               const SizedBox(height: 50),
                _signin(context),
+               const SizedBox(height: 50),
+               _signup(context),
+               const SizedBox(height: 20),
+              _forgotpassword(context),
             ],
           ),
         ),
@@ -229,30 +234,18 @@ class _LoginState extends State<Login> {
       ),
     );
   }
-}
 
-// FIXED: Either remove ResetPassword or implement it properly
-class ResetPassword extends StatelessWidget {
-  const ResetPassword({super.key});
-  
-  @override
-  Widget build(BuildContext context) {
+  Widget _forgotpassword(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        // TODO: Implement proper navigation for password reset
-        // Navigator.push(
-        //   context,
-        //   MaterialPageRoute(
-        //     builder: (context) => ResetPasswordPage(), // Add proper page
-        //   )
-        // );
+         _showForgotPasswordDialog(context);
       },
       child: MouseRegion(
         cursor: SystemMouseCursors.click,
         child: Container(
           padding: EdgeInsets.all(5),
           child: Text(
-            "Forgot Password?", // Changed text to be more appropriate
+            "Forgot Password?",
             style: TextStyle(
               fontSize: 16,
               color: Colors.blue,
@@ -264,6 +257,78 @@ class ResetPassword extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+  
+  void _showForgotPasswordDialog(BuildContext context) {
+    TextEditingController emailController = TextEditingController(
+      text: _emailController.text
+    );
+
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("Reset Password"),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text("Enter your email address associated with the account and we will send you a password reset link"),
+              SizedBox(height: 16),
+              TextField(
+                controller: emailController,
+                decoration: InputDecoration(
+                  hintText: "Enter your email",
+                  border: OutlineInputBorder(),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text("Cancel"),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                if (emailController.text.isNotEmpty) {
+                  Navigator.pop(context);
+                  try {
+                    await AuthService.forgotPassword(email: emailController.text);
+                    Fluttertoast.showToast(
+                      msg: "Password reset email has been sent",
+                      toastLength: Toast.LENGTH_LONG,
+                      gravity: ToastGravity.SNACKBAR,
+                      backgroundColor: Colors.green,
+                      textColor: Colors.white,
+                      fontSize: 16.0,
+                    );
+                  } catch (e) {
+                    Fluttertoast.showToast(
+                      msg: "Error: ${e.toString()}",
+                      toastLength: Toast.LENGTH_LONG,
+                      gravity: ToastGravity.SNACKBAR,
+                      backgroundColor: Colors.red,
+                      textColor: Colors.white,
+                      fontSize: 16.0,
+                    );
+                  }
+                } else {
+                  Fluttertoast.showToast(
+                    msg: "Please enter your email address",
+                    toastLength: Toast.LENGTH_LONG,
+                    gravity: ToastGravity.SNACKBAR,
+                    backgroundColor: Colors.black,
+                    textColor: Colors.white,
+                    fontSize: 16.0,
+                  );
+                }
+              }, 
+              child: Text("Reset password"),
+            )
+          ],
+        );
+      },
     );
   }
 }

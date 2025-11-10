@@ -24,7 +24,6 @@ class Signup extends StatefulWidget {
     return Scaffold(
       backgroundColor: Colors.white,
       resizeToAvoidBottomInset: true,
-      bottomNavigationBar: _signin(context),
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -37,7 +36,7 @@ class Signup extends StatefulWidget {
             children: [
               Center(
                 child: Text(
-                  'Register Account',
+                  'Create Account',
                   style: GoogleFonts.raleway(
                     textStyle: const TextStyle(
                       color: Colors.black,
@@ -53,6 +52,8 @@ class Signup extends StatefulWidget {
                _password(),
                const SizedBox(height: 50,),
                _signup(context),
+               const SizedBox(height: 50,),
+               _signin(context),
             ],
           ),
 
