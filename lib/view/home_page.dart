@@ -43,8 +43,8 @@ class HomePage extends StatelessWidget {
                       end: Alignment.bottomCenter,
                     )
                   ),
-                  child: Image.network(
-                    'https://thvnext.bing.com/th/id/OIP.YBEoxUo1RwxUsZg3mODK8AHaHa?w=170&h=180&c=7&r=0&o=7&cb=12&dpr=1.3&pid=1.7&rm=3&ucfimg=1',
+                  child: Image.asset(
+                    'assets/my_pickleball_image.jpeg',
                     width: 300,
                     height: 300,
                     fit: BoxFit.cover,
