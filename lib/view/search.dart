@@ -1,9 +1,15 @@
 import 'package:find_my_pickle/services/authentication_service.dart';
 import 'package:find_my_pickle/view/court_results_by_location.dart';
 import 'package:find_my_pickle/view/court_results_page.dart';
+import 'package:find_my_pickle/view/home_page.dart';
 import 'package:find_my_pickle/viewModel/search_viewmodel.dart';
-import 'package:find_my_pickle/view/favorites_page.dart'; // Add this import
+import 'package:find_my_pickle/view/favorites_page.dart';
+import 'package:find_my_pickle/view/signup.dart'; // Add this import
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
@@ -14,6 +20,133 @@ class SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<SearchPage> {
   final SearchViewModel viewModel = SearchViewModel();
+  User? currentUser = FirebaseAuth.instance.currentUser;
+  Uint8List? profileImage;
+  bool isLoadingProfile = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadProfilePicture();
+  }
+
+  // Helper method to check if user is a guest
+  bool get _isGuestUser {
+    return currentUser?.isAnonymous ?? true;
+  }
+
+  Future<void> _loadProfilePicture() async {
+    try {
+      if (currentUser == null || _isGuestUser) return;
+      
+      final storageRef = FirebaseStorage.instance.ref();
+      final imageRef = storageRef.child("users/${currentUser!.uid}/profile.jpg");
+      final imageBytes = await imageRef.getData();
+      
+      if (imageBytes != null && mounted) {
+        setState(() => profileImage = imageBytes);
+      }
+    } catch (e) {
+      print("Profile picture cannot be found: $e");
+    }
+  }
+
+  Future<void> _onProfilePictureTap() async {
+    // Check if user is a guest
+    if (_isGuestUser) {
+      _showGuestUserError();
+      return;
+    }
+
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+    if (image == null) return;
+
+    setState(() => isLoadingProfile = true);
+
+    try {
+      final imageBytes = await image.readAsBytes();
+      
+      // Upload to Firebase Storage
+      final storageRef = FirebaseStorage.instance.ref();
+      final imageRef = storageRef.child("users/${currentUser!.uid}/profile.jpg"); 
+      await imageRef.putData(imageBytes);
+      
+      if (mounted) {
+        setState(() {
+          profileImage = imageBytes;
+          isLoadingProfile = false;
+        });
+      }
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Profile picture updated!')),
+      );
+    } catch (e) {
+      print("Error uploading image: $e");
+      if (mounted) {
+        setState(() => isLoadingProfile = false);
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: ${e.toString()}')),
+      );
+    }
+  }
+
+  void _showGuestUserError() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text(
+          'Guest users cannot update profile photos. Please sign up for a full account.',
+          style: TextStyle(color: Colors.white),
+        ),
+        backgroundColor: Colors.orange[800],
+        duration: const Duration(seconds: 4),
+        action: SnackBarAction(
+          label: 'SIGN UP',
+          textColor: Colors.white,
+          onPressed: () {
+            // Navigate directly to sign up page
+            _navigateToSignUp();
+          },
+        ),
+      ),
+    );
+  }
+
+  void _showSignUpDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Create an Account'),
+        content: const Text(
+          'To save profile photos, favorites, and other personal data, please create a full account.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('LATER'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pop(context); // Close the dialog
+              _navigateToSignUp(); // Navigate to sign up page
+            },
+            child: const Text('SIGN UP'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _navigateToSignUp() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => Signup(), // Navigate to your Signup page
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +168,49 @@ class _SearchPageState extends State<SearchPage> {
             icon: const Icon(Icons.favorite),
             tooltip: 'View Favorites',
           ),
+          // Profile Picture (replaces info icon)
+          GestureDetector(
+            onTap: _onProfilePictureTap,
+            child: Container(
+              margin: const EdgeInsets.all(8),
+              width: 36,
+              height: 36,
+              decoration: BoxDecoration(
+                color: _isGuestUser ? Colors.grey[400] : Colors.blue[100],
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: Colors.white, 
+                  width: 2,
+                ),
+                image: profileImage != null
+                    ? DecorationImage(
+                        fit: BoxFit.cover,
+                        image: MemoryImage(profileImage!),
+                      )
+                    : null,
+              ),
+              child: isLoadingProfile
+                  ? const Center(
+                      child: SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      ),
+                    )
+                  : profileImage == null
+                      ? Center(
+                          child: Icon(
+                            _isGuestUser ? Icons.person_outline : Icons.person,
+                            color: _isGuestUser ? Colors.white : Colors.black38,
+                            size: 20,
+                          ),
+                        )
+                      : null,
+            ),
+          ),
           // Search button
           IconButton(
             onPressed: () {
@@ -47,32 +223,29 @@ class _SearchPageState extends State<SearchPage> {
           ),
           IconButton(
             onPressed: () {
-              AuthService.signout(
-                context: context,
-              );
+              AuthService.signout(context: context);
             },
             icon: const Icon(Icons.logout),
           ),
-          
-        ]
+        ],
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(Icons.search, size: 64, color: Colors.grey[400]),
-            SizedBox(height: 16),
+            const SizedBox(height: 16),
             Text(
               "Tap the search icon to find courts",
               style: TextStyle(fontSize: 16, color: Colors.grey[600]),
             ),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               "Enter a city and state to discover pickleball courts nearby",
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 14, color: Colors.grey[500]),
             ),
-            SizedBox(height: 32),
+            const SizedBox(height: 32),
             ElevatedButton.icon(
               onPressed: () {
                 Navigator.push(
@@ -82,16 +255,17 @@ class _SearchPageState extends State<SearchPage> {
                   ),
                 );
               },
-              icon: Icon(Icons.favorite, color: Colors.red),
-              label: Text(
+              icon: const Icon(Icons.favorite, color: Colors.red),
+              label: const Text(
                 "View Favorite Courts",
                 style: TextStyle(color: Colors.white),
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               ),
             ),
+            const SizedBox(height: 12),
             ElevatedButton.icon(
               onPressed: () {
                 Navigator.push(
@@ -101,16 +275,14 @@ class _SearchPageState extends State<SearchPage> {
                   ),
                 );
               },
-              icon: Padding(
-                padding: const EdgeInsets.only(top: 20.0),
-              ),
-              label: Text(
+              icon: const Icon(Icons.location_on, color: Colors.white),
+              label: const Text(
                 "Find courts near you",
                 style: TextStyle(color: Colors.white),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.greenAccent,
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                backgroundColor: Colors.green,
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               ),
             ),
           ],
@@ -120,7 +292,7 @@ class _SearchPageState extends State<SearchPage> {
   }
 }
 
-// create a custom search bar class
+// Your existing CustomSearchBar class remains the same...
 class CustomSearchBar extends SearchDelegate {
   final SearchViewModel viewModel;
   bool _isSearching = false;
@@ -134,7 +306,7 @@ class CustomSearchBar extends SearchDelegate {
         onPressed: () {
           query = '';
         },
-        icon: Icon(Icons.clear),
+        icon: const Icon(Icons.clear),
       ),
     ];
   }
@@ -145,13 +317,12 @@ class CustomSearchBar extends SearchDelegate {
       onPressed: () {
         close(context, null);
       },
-      icon: Icon(Icons.arrow_back),
+      icon: const Icon(Icons.arrow_back),
     );
   }
 
   @override 
   Widget buildResults(BuildContext context) {
-    // search for results if searching did not start
     if (!_isSearching) {
       _isSearching = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -166,10 +337,8 @@ class CustomSearchBar extends SearchDelegate {
     try {
       await viewModel.searchCourts(query);
       
-      // Reset searching flag
       _isSearching = false;
       
-      // Close search bar and navigate
       if (!context.mounted) return;
       close(context, null);
       
@@ -209,7 +378,7 @@ class CustomSearchBar extends SearchDelegate {
       itemBuilder: (context, index) {
         final suggestion = suggestions[index];
         return ListTile(
-          leading: Icon(Icons.history),
+          leading: const Icon(Icons.history),
           title: Text(suggestion),
           onTap: () {
             query = suggestion;
@@ -225,12 +394,12 @@ class CustomSearchBar extends SearchDelegate {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          CircularProgressIndicator(),
-          SizedBox(height: 16),
+          const CircularProgressIndicator(),
+          const SizedBox(height: 16),
           Text(
             'Searching for courts in $query...',
             textAlign: TextAlign.center,
-            style: TextStyle(fontSize: 16),
+            style: const TextStyle(fontSize: 16),
           ),
         ],
       ),
@@ -243,7 +412,7 @@ class CustomSearchBar extends SearchDelegate {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.search, size: 64, color: Colors.grey[400]),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Text(
             'Enter a city and State\n(e.g., "Pittsburgh PA")',
             textAlign: TextAlign.center,
