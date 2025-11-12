@@ -254,30 +254,33 @@ class FavoriteCourtCard extends StatelessWidget {
     );
   }
 
-  Widget _buildCourtImage(String? photoUrl) {
-    if (photoUrl == null) {
-      return Container(
-        color: Colors.grey[300],
-        child: Icon(Icons.sports_tennis, size: 40, color: Colors.grey[600]),
+    Widget _buildCourtImage(String? photoUrl) {
+
+    Widget imageWidget = Image.asset(
+      'assets/my_pickleball_image.jpeg',
+      fit: BoxFit.cover,
+    );
+
+    if (photoUrl != null) {
+      imageWidget = Image.network(
+        photoUrl,
+        fit: BoxFit.cover,
+        errorBuilder: (context, error, stackTrace) {
+          return Image.asset(
+            'assets/court_placeholder.png',
+            fit: BoxFit.cover,
+          );
+        },
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) return child;
+          return Center(child: CircularProgressIndicator());
+        },
       );
     }
     
     return ClipRRect(
       borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-      child: Image.network(
-        photoUrl,
-        fit: BoxFit.cover,
-        loadingBuilder: (context, child, loadingProgress) {
-          if (loadingProgress == null) return child;
-          return Center(child: CircularProgressIndicator());
-        },
-        errorBuilder: (context, error, stackTrace) {
-          return Container(
-            color: Colors.grey[300],
-            child: Icon(Icons.sports_tennis, size: 40, color: Colors.grey[600]),
-          );
-        },
-      ),
+      child: imageWidget,
     );
   }
 }

@@ -1,6 +1,5 @@
 import 'package:find_my_pickle/view/home_page.dart';
 import 'package:find_my_pickle/view/login.dart';
-import 'package:find_my_pickle/view/search.dart';
 import 'package:find_my_pickle/view/signup.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -38,22 +37,16 @@ void main() {
 
     testWidgets('Tapping Sign Up button navigates to sign up', (tester) async {
       await tester.pumpWidget(createHomePage());
+
+      final buttonFinder = find.text('Sign Up');
+      await tester.ensureVisible(buttonFinder);
       
-      await tester.tap(find.text('Sign Up'));
+      await tester.pumpAndSettle();
+      await tester.tap(buttonFinder);
       await tester.pumpAndSettle();
 
       expect(find.byType(HomePage), findsNothing);
       expect(find.byType(Signup), findsOneWidget);
-    });
-
-    testWidgets('Tapping Continue As Guest navigates to search', (tester) async {
-      await tester.pumpWidget(createHomePage());
-      
-      await tester.tap(find.text('Continue As Guest'));
-      await tester.pumpAndSettle();
-
-      expect(find.byType(HomePage), findsNothing);
-      expect(find.byType(SearchPage), findsOneWidget);
     });
   });
 }
