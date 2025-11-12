@@ -1,12 +1,11 @@
-// add necessary libraries and view models
+import 'package:find_my_pickle/view/join_a_game.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:find_my_pickle/viewModel/favorites_viewModel.dart';
-import 'package:find_my_pickle/viewModel/directions_viewModel.dart'; // Add this import
+import 'package:find_my_pickle/viewModel/directions_viewModel.dart';
 
 class CourtDetailPage extends StatefulWidget {
-  // declare a map for a court
   final Map<String, dynamic> court;
 
   const CourtDetailPage({super.key, required this.court});
@@ -16,10 +15,8 @@ class CourtDetailPage extends StatefulWidget {
 }
 
 class _CourtDetailPageState extends State<CourtDetailPage> {
-  // Initialize Directions view model
   late DirectionsViewModel _directionsViewModel;
 
-  // initialize the directions view model
   @override
   void initState() {
     super.initState();
@@ -28,7 +25,6 @@ class _CourtDetailPageState extends State<CourtDetailPage> {
 
   @override
   Widget build(BuildContext context) {
-    // necessary variables that will be used in UI
     final name = widget.court['name'] ?? 'Unknown Court';
     final vicinity = widget.court['vicinity'] ?? 'No address available';
     final photoUrl = widget.court['photo_url'];
@@ -36,7 +32,6 @@ class _CourtDetailPageState extends State<CourtDetailPage> {
     final openNow = widget.court['opening_hours']?['open_now'] as bool?;
 
     return Scaffold(
-      // add a blue app bar
       appBar: AppBar(
         title: const Text('Court Details'),
         backgroundColor: Colors.blue,
@@ -98,7 +93,7 @@ class _CourtDetailPageState extends State<CourtDetailPage> {
                     ),
                     const SizedBox(height: 8),
 
-                    // Rating in the details section
+                    // Rating
                     Row(
                       children: [
                         const Icon(Icons.star, color: Colors.amber, size: 20),
@@ -128,14 +123,14 @@ class _CourtDetailPageState extends State<CourtDetailPage> {
                     ),
                     const SizedBox(height: 16),
 
-                    // Adress is on the details section
+                    // Address
                     _buildDetailSection(
                       icon: Icons.location_on,
                       title: 'Address',
                       content: vicinity,
                     ),
 
-                    // Directions and Share Buttons
+                    // Action Buttons
                     const SizedBox(height: 24),
                     Row(
                       children: [
@@ -160,7 +155,26 @@ class _CourtDetailPageState extends State<CourtDetailPage> {
                       ],
                     ),
                     
+                    // Join a Game Button
                     const SizedBox(height: 20),
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => JoinAGame(court: widget.court),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.sports_tennis),
+                        label: const Text('Join a Game'),
+                        style: ElevatedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -171,7 +185,6 @@ class _CourtDetailPageState extends State<CourtDetailPage> {
     );
   }
 
-  // details section background set up
   Widget _buildDetailSection({required IconData icon, required String title, required String content}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -201,7 +214,6 @@ class _CourtDetailPageState extends State<CourtDetailPage> {
     );
   }
 
-  // add the favorite button on the top of the screen so you can add to favorites
   Widget _buildFavoriteButton() {
     return Consumer<FavoritesViewModel>(
       builder: (context, favoritesViewModel, child) {
@@ -218,7 +230,6 @@ class _CourtDetailPageState extends State<CourtDetailPage> {
     );
   }
 
-  // call the view model for directions
   Future<void> _handleGetDirections(BuildContext context, String name, String address) async {
     try {
       await _directionsViewModel.openDirections(
@@ -231,7 +242,6 @@ class _CourtDetailPageState extends State<CourtDetailPage> {
     }
   }
 
-  // set up UI logic when something is favorited and then clicked again
   void _handleFavoriteToggle(BuildContext context, FavoritesViewModel favoritesViewModel, bool isFavorite) {
     favoritesViewModel.toggleFavorite(widget.court);
     
@@ -245,7 +255,6 @@ class _CourtDetailPageState extends State<CourtDetailPage> {
     );
   }
 
-  // UI logic for sharing a court
   Future<void> _handleShare(BuildContext context) async {
     final name = widget.court['name'] ?? 'Unknown Court';
     final vicinity = widget.court['vicinity'] ?? 'No address available';
@@ -270,7 +279,6 @@ class _CourtDetailPageState extends State<CourtDetailPage> {
     }
   }
 
-  // UI-only helper methods for dialogs and error messages
   void _showNoMapsAppDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -287,7 +295,6 @@ class _CourtDetailPageState extends State<CourtDetailPage> {
     );
   }
 
-  // show on the screen when you can not share a court
   void _showShareError(BuildContext context) {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
