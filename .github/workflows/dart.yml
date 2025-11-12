@@ -14,8 +14,32 @@ on:
     branches:
       - dev
       - test
+      - main
 
-jobs:  
+jobs:
+  test: 
+    name: Run Tests
+    runs-on: ubuntu-latest
+    steps:
+      #1 Checkout Repository
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      #2 Setup Flutter
+      - name: Set Up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.22.2'
+          channel: 'stable'
+
+      #3 Install Dependencies
+      - name: Install Dependencies
+        run: flutter pub get
+
+      #4 Run Tests
+      - name: Run Tests
+        run: flutter test
+    
   build:      
     name: Build & Release 
     runs-on: macos-latest 
