@@ -11,10 +11,36 @@ class AuthService {
     required String password,
     required BuildContext context
   }) async {
-    
+  
+    // Add validation for empty fields
+    if (email.isEmpty || password.isEmpty) {
+      Fluttertoast.showToast(
+        msg: 'You must enter an email and password to sign up',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.SNACKBAR,
+        backgroundColor: Colors.black54,
+        textColor: Colors.white,
+        fontSize: 14.0,
+      );
+      return; // Exit the function early
+    }
+
+    String trimmedEmail = email.trim();
+  
+    // Additional validation for empty after trim
+    if (trimmedEmail.isEmpty) {
+      Fluttertoast.showToast(
+        msg: 'Please enter a valid email address',
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.SNACKBAR,
+        backgroundColor: Colors.black54,
+        textColor: Colors.white,
+        fontSize: 14.0,
+      );
+      return;
+    }
+
     try {
-      String trimmedEmail = email.trim();
-      
       await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: trimmedEmail,
         password: password
@@ -26,38 +52,39 @@ class AuthService {
           builder: (context) => SearchPage()
         )
       );
-      
+    
     } on FirebaseAuthException catch(e) {
       String message = '';
       if (e.code == 'weak-password') {
         message = 'The password provided is too weak.';
       } else if (e.code == 'email-already-in-use') {
         message = 'An account already exists with that email.';
+      } else if (e.code == 'invalid-email') {
+        message = 'The email address is not valid.';
       } else {
         message = 'Authentication error: ${e.message}';
       }
       Fluttertoast.showToast(
         msg: message,
-        toastLength: Toast.LENGTH_LONG,
+        toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.SNACKBAR,
         backgroundColor: Colors.black54,
         textColor: Colors.white,
         fontSize: 14.0,
       );
-    }
-    catch(e) {
+    } catch(e) {
       User? currentUser = FirebaseAuth.instance.currentUser;
       if (currentUser != null) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(
+          MaterialPageRoute(  // FIXED: Changed MaterialPageBuilder to MaterialPageRoute
             builder: (context) => SearchPage()
           )
         );
       } else {
         Fluttertoast.showToast(
           msg: 'An error occurred during signup. Please try again.',
-          toastLength: Toast.LENGTH_LONG,
+          toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.SNACKBAR,
           backgroundColor: Colors.black54,
           textColor: Colors.white,
@@ -65,7 +92,7 @@ class AuthService {
         );
       }
     }
-  }
+  } // FIXED: Added missing closing brace for the signup method
 
   Future<void> signin({
     required String email,
@@ -100,7 +127,7 @@ class AuthService {
       } else {
         Fluttertoast.showToast(
           msg: 'Login failed. Please check your email and password.',
-          toastLength: Toast.LENGTH_LONG,
+          toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.SNACKBAR,
           backgroundColor: Colors.black54,
           textColor: Colors.white,
@@ -111,16 +138,16 @@ class AuthService {
   }
 
   static Future forgotPassword({required String email}) async {
-      try {
-             await FirebaseAuth.instance.sendPasswordResetEmail(email: email); // FIXED: _FirebaseAuth → FirebaseAuth.instance
-          } on FirebaseAuthException catch (err) {
-             throw Exception(err.message.toString());
-          } catch (err) {
-             throw Exception(err.toString());
-          }
-      }
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+    } on FirebaseAuthException catch (err) {
+      throw Exception(err.message.toString());
+    } catch (err) {
+      throw Exception(err.toString());
+    }
+  }
 
-   static Future<void> signout({
+  static Future<void> signout({
     required BuildContext context
   }) async {
     

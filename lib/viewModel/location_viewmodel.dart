@@ -1,7 +1,6 @@
 import 'package:geolocator/geolocator.dart';
 
 class LocationViewModel {
-  String locationMessage = 'Press the button to get location';
   Position? currentPosition;
   bool isLoading = false;
 

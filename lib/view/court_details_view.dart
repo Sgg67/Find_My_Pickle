@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:find_my_pickle/viewModel/favorites_viewModel.dart';
 import 'package:find_my_pickle/viewModel/directions_viewModel.dart';
+import 'package:firebase_auth/firebase_auth.dart'; // ADD THIS IMPORT
 
 class CourtDetailPage extends StatefulWidget {
   final Map<String, dynamic> court;
@@ -16,6 +17,25 @@ class CourtDetailPage extends StatefulWidget {
 
 class _CourtDetailPageState extends State<CourtDetailPage> {
   late DirectionsViewModel _directionsViewModel;
+
+  // ADD THIS METHOD TO CHECK IF USER IS GUEST
+  bool _isGuestUser() {
+    final user = FirebaseAuth.instance.currentUser;
+    return user == null || user.isAnonymous;
+  }
+
+  // ADD THIS METHOD TO SHOW GUEST USER ERROR
+  void _showGuestUserError() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'Guest users cannot join games. Please create an account to join games.',
+        ),
+        backgroundColor: Colors.red,
+        duration: Duration(seconds: 3),
+      ),
+    );
+  }
 
   @override
   void initState() {
@@ -35,9 +55,7 @@ class _CourtDetailPageState extends State<CourtDetailPage> {
       appBar: AppBar(
         title: const Text('Court Details'),
         backgroundColor: Colors.blue,
-        actions: [
-          _buildFavoriteButton(),
-        ],
+        actions: [_buildFavoriteButton()],
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -54,7 +72,9 @@ class _CourtDetailPageState extends State<CourtDetailPage> {
                         fit: BoxFit.cover,
                         loadingBuilder: (context, child, loadingProgress) {
                           if (loadingProgress == null) return child;
-                          return const Center(child: CircularProgressIndicator());
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
                         },
                         errorBuilder: (context, error, stackTrace) {
                           return Container(
@@ -98,14 +118,14 @@ class _CourtDetailPageState extends State<CourtDetailPage> {
                       children: [
                         const Icon(Icons.star, color: Colors.amber, size: 20),
                         const SizedBox(width: 4),
-                        Text(
-                          rating,
-                          style: const TextStyle(fontSize: 16),
-                        ),
+                        Text(rating, style: const TextStyle(fontSize: 16)),
                         const SizedBox(width: 16),
                         if (openNow != null)
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
                             decoration: BoxDecoration(
                               color: openNow ? Colors.green : Colors.red,
                               borderRadius: BorderRadius.circular(4),
@@ -136,7 +156,8 @@ class _CourtDetailPageState extends State<CourtDetailPage> {
                       children: [
                         Expanded(
                           child: ElevatedButton.icon(
-                            onPressed: () => _handleGetDirections(context, name, vicinity),
+                            onPressed: () =>
+                                _handleGetDirections(context, name, vicinity),
                             icon: const Icon(Icons.directions),
                             label: const Text('Get Directions'),
                             style: ElevatedButton.styleFrom(
@@ -154,19 +175,24 @@ class _CourtDetailPageState extends State<CourtDetailPage> {
                         ),
                       ],
                     ),
-                    
-                    // Join a Game Button
+
+                    // Join a Game Button - WITH DEBUGGING
                     const SizedBox(height: 20),
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton.icon(
                         onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => JoinAGame(court: widget.court),
-                            ),
-                          );
+                          if (_isGuestUser()) {
+                            _showGuestUserError(); // Show error message for guest users
+                          } else {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    JoinAGame(court: widget.court),
+                              ),
+                            );
+                          }
                         },
                         icon: const Icon(Icons.sports_tennis),
                         label: const Text('Join a Game'),
@@ -185,7 +211,11 @@ class _CourtDetailPageState extends State<CourtDetailPage> {
     );
   }
 
-  Widget _buildDetailSection({required IconData icon, required String title, required String content}) {
+  Widget _buildDetailSection({
+    required IconData icon,
+    required String title,
+    required String content,
+  }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -195,21 +225,12 @@ class _CourtDetailPageState extends State<CourtDetailPage> {
             const SizedBox(width: 8),
             Text(
               title,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
           ],
         ),
         const SizedBox(height: 8),
-        Text(
-          content,
-          style: const TextStyle(
-            fontSize: 16,
-            color: Colors.grey,
-          ),
-        ),
+        Text(content, style: const TextStyle(fontSize: 16, color: Colors.grey)),
       ],
     );
   }
@@ -224,13 +245,18 @@ class _CourtDetailPageState extends State<CourtDetailPage> {
             isFavorite ? Icons.favorite : Icons.favorite_border,
             color: isFavorite ? Colors.red : Colors.white,
           ),
-          onPressed: () => _handleFavoriteToggle(context, favoritesViewModel, isFavorite),
+          onPressed: () =>
+              _handleFavoriteToggle(context, favoritesViewModel, isFavorite),
         );
       },
     );
   }
 
-  Future<void> _handleGetDirections(BuildContext context, String name, String address) async {
+  Future<void> _handleGetDirections(
+    BuildContext context,
+    String name,
+    String address,
+  ) async {
     try {
       await _directionsViewModel.openDirections(
         court: widget.court,
@@ -242,13 +268,17 @@ class _CourtDetailPageState extends State<CourtDetailPage> {
     }
   }
 
-  void _handleFavoriteToggle(BuildContext context, FavoritesViewModel favoritesViewModel, bool isFavorite) {
+  void _handleFavoriteToggle(
+    BuildContext context,
+    FavoritesViewModel favoritesViewModel,
+    bool isFavorite,
+  ) {
     favoritesViewModel.toggleFavorite(widget.court);
-    
+
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          isFavorite ? 'Removed from favorites' : 'Added to favorites'
+          isFavorite ? 'Removed from favorites' : 'Added to favorites',
         ),
         duration: const Duration(seconds: 2),
       ),
@@ -260,7 +290,8 @@ class _CourtDetailPageState extends State<CourtDetailPage> {
     final vicinity = widget.court['vicinity'] ?? 'No address available';
     final rating = widget.court['rating']?.toString() ?? 'No rating';
 
-    final String shareText = '''
+    final String shareText =
+        '''
     🏓 Check out this pickleball court!
 
     $name
@@ -270,11 +301,8 @@ class _CourtDetailPageState extends State<CourtDetailPage> {
     Found via Find My Pickle app!''';
 
     try {
-      await Share.share(
-        shareText,
-        subject: "Pickleball Court: $name",
-      );
-    } catch(e) {
+      await Share.share(shareText, subject: "Pickleball Court: $name");
+    } catch (e) {
       _showShareError(context);
     }
   }
@@ -284,7 +312,9 @@ class _CourtDetailPageState extends State<CourtDetailPage> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('No Maps App Found'),
-        content: const Text('Please install Google Maps or another navigation app to get directions.'),
+        content: const Text(
+          'Please install Google Maps or another navigation app to get directions.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),

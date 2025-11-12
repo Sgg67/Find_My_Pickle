@@ -1,5 +1,6 @@
 import 'package:find_my_pickle/model/game_model.dart';
 import 'package:find_my_pickle/viewModel/games_viewmodel.dart';
+import 'package:firebase_auth/firebase_auth.dart'; // ADD THIS IMPORT
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -16,6 +17,23 @@ class _JoinAGameState extends State<JoinAGame> {
   DateTime? _selectedDate;
   TimeOfDay? _selectedTime;
   final List<int> _availableHours = [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
+
+  // ADD THIS METHOD TO CHECK IF USER IS GUEST
+  bool _isGuestUser() {
+    final user = FirebaseAuth.instance.currentUser;
+    return user != null && user.isAnonymous;
+  }
+
+  // ADD THIS METHOD TO SHOW GUEST USER ERROR
+  void _showGuestUserError() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Guest users cannot join games. Please create an account to join games.'),
+        backgroundColor: Colors.red,
+        duration: Duration(seconds: 3),
+      ),
+    );
+  }
 
   @override
   void initState() {
@@ -350,15 +368,17 @@ class _JoinAGameState extends State<JoinAGame> {
             
             const SizedBox(height: 16),
             
-            // Join/Leave button with better styling
+            // Join/Leave button with better styling - UPDATED WITH GUEST CHECK
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: game.isFull && !isUserJoined
-                    ? null
-                    : () => isUserJoined
-                        ? _leaveGame(gameViewModel, game.id)
-                        : _joinExistingGame(gameViewModel, game),
+                onPressed: _isGuestUser() 
+                    ? () => _showGuestUserError() // Show error if guest tries to join
+                    : (game.isFull && !isUserJoined
+                        ? null
+                        : () => isUserJoined
+                            ? _leaveGame(gameViewModel, game.id)
+                            : _joinExistingGame(gameViewModel, game)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: isUserJoined ? Colors.red : Colors.blue,
                   padding: const EdgeInsets.symmetric(vertical: 12),
@@ -423,25 +443,40 @@ class _JoinAGameState extends State<JoinAGame> {
   }
 
   Future<void> _selectTime() async {
-    final TimeOfDay? picked = await showTimePicker(
-      context: context,
-      initialTime: TimeOfDay.now(),
-    );
+  final TimeOfDay? picked = await showTimePicker(
+    context: context,
+    initialTime: TimeOfDay.now(),
+  );
 
-    if (picked != null) {
-      final int minute = (picked.minute / 15).round() * 15;
-      final TimeOfDay roundedTime = TimeOfDay(hour: picked.hour, minute: minute);
-
-      if (_availableHours.contains(roundedTime.hour)) {
-        setState(() {
-          _selectedTime = roundedTime;
-        });
-      } else {
+  if (picked != null) {
+    final int minute = (picked.minute / 15).round() * 15;
+    
+    // FIX: Handle the case where minute becomes 60
+    int finalMinute = minute;
+    int finalHour = picked.hour;
+    
+    if (minute == 60) {
+      finalMinute = 0;
+      finalHour = picked.hour + 1;
+      
+      // Check if hour becomes 24 (midnight) or beyond available hours
+      if (finalHour >= 24 || !_availableHours.contains(finalHour)) {
         _showTimeError();
+        return;
       }
     }
-  }
+    
+    final TimeOfDay roundedTime = TimeOfDay(hour: finalHour, minute: finalMinute);
 
+    if (_availableHours.contains(roundedTime.hour)) {
+      setState(() {
+        _selectedTime = roundedTime;
+      });
+    } else {
+      _showTimeError();
+    }
+  }
+}
   void _showTimeError() {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
@@ -453,6 +488,12 @@ class _JoinAGameState extends State<JoinAGame> {
   }
 
   Future<void> _joinGame(GameViewModel gameViewModel) async {
+    // ADD GUEST CHECK HERE TOO
+    if (_isGuestUser()) {
+      _showGuestUserError();
+      return;
+    }
+
     if (_selectedDate != null && _selectedTime != null) {
       final gameDateTime = DateTime(
         _selectedDate!.year,
@@ -487,6 +528,12 @@ class _JoinAGameState extends State<JoinAGame> {
   }
 
   Future<void> _joinExistingGame(GameViewModel gameViewModel, GameModel game) async {
+    // ADD GUEST CHECK HERE TOO
+    if (_isGuestUser()) {
+      _showGuestUserError();
+      return;
+    }
+
     try {
       await gameViewModel.joinGame(
         courtId: game.courtId,
