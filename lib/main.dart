@@ -3,6 +3,7 @@ import 'package:find_my_pickle/services/authentication_service.dart';
 import 'package:find_my_pickle/viewModel/auth_viewmodel.dart';
 import 'package:find_my_pickle/viewModel/court_results_viewmodel.dart';
 import 'package:find_my_pickle/viewModel/directions_viewmodel.dart';
+import 'package:find_my_pickle/viewModel/favorites_viewmodel.dart'; // FIXED: lowercase 'm'
 import 'package:find_my_pickle/viewModel/games_viewmodel.dart';
 import 'package:find_my_pickle/viewModel/home_viewmodel.dart';
 import 'package:find_my_pickle/viewModel/join_game_viewmodel.dart';
@@ -12,7 +13,6 @@ import 'package:find_my_pickle/viewModel/user_profile_viewmodel.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'viewModel/favorites_viewModel.dart';
 import 'view/home_page.dart';
 
 Future<void> main() async {

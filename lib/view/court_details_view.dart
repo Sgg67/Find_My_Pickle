@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:find_my_pickle/viewModel/favorites_viewmodel.dart';
 import 'package:find_my_pickle/viewModel/directions_viewmodel.dart';
-import 'package:firebase_auth/firebase_auth.dart'; // ADD THIS IMPORT
+import 'package:firebase_auth/firebase_auth.dart'; 
 
 class CourtDetailPage extends StatefulWidget {
   final Map<String, dynamic> court;
