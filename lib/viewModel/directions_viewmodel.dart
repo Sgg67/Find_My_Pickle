@@ -1,25 +1,57 @@
+import 'package:flutter/foundation.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-class DirectionsViewModel {
+class DirectionsViewModel with ChangeNotifier {
+  bool _isLoading = false;
+  String? _errorMessage;
+
+  bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
+
+  void _setLoading(bool loading) {
+    _isLoading = loading;
+    notifyListeners();
+  }
+
+  void _setError(String? error) {
+    _errorMessage = error;
+    notifyListeners();
+  }
+
+  void clearError() {
+    _errorMessage = null;
+    notifyListeners();
+  }
+
   Future<void> openDirections({
     required Map<String, dynamic> court,
     required String name,
     required String address,
   }) async {
-    final geometry = court['geometry'];
-    final location = geometry?['location'];
-    
-    if (location != null) {
-      final double? lat = location['lat']?.toDouble();
-      final double? lng = location['lng']?.toDouble();
+    _setLoading(true);
+    _setError(null);
+
+    try {
+      final geometry = court['geometry'];
+      final location = geometry?['location'];
       
-      if (lat != null && lng != null) {
-        await _openWithCoordinates(lat, lng, name, address);
+      if (location != null) {
+        final double? lat = location['lat']?.toDouble();
+        final double? lng = location['lng']?.toDouble();
+        
+        if (lat != null && lng != null) {
+          await _openWithCoordinates(lat, lng, name, address);
+        } else {
+          await _openWithAddress(name, address);
+        }
       } else {
         await _openWithAddress(name, address);
       }
-    } else {
-      await _openWithAddress(name, address);
+      _setLoading(false);
+    } catch (e) {
+      _setLoading(false);
+      _setError('Failed to open directions: ${e.toString()}');
+      rethrow;
     }
   }
 

@@ -1,11 +1,14 @@
 import 'package:find_my_pickle/services/authentication_service.dart';
 import 'package:find_my_pickle/view/signup.dart';
+import 'package:find_my_pickle/view/search.dart'; // Add this import
+import 'package:find_my_pickle/viewModel/auth_viewmodel.dart'; // Add ViewModel import
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart'; // Add Provider import
 
 class Login extends StatefulWidget {
   Login({super.key});
@@ -18,6 +21,16 @@ class _LoginState extends State<Login> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isObscure = true;
+
+  @override
+  void initState() {
+    super.initState();
+    // Clear any existing errors when the screen loads
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
+      authViewModel.clearError();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -178,31 +191,67 @@ class _LoginState extends State<Login> {
   }
 
   Widget _signin(BuildContext context) {
-  return ElevatedButton(
-    style: ElevatedButton.styleFrom(
-      backgroundColor: Colors.blue,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(14),
-      ),
-      minimumSize: const Size(double.infinity, 60),
-      elevation: 0,
-    ),
-    onPressed: () async {
-      await AuthService().signin(
-        email: _emailController.text,
-        password: _passwordController.text,
-        context: context
-      );
-    },
-    child: Text(
-      "Sign In",
-      style: TextStyle(
-        color: Colors.black,
-        fontSize: 16,
-      ),
-    ),
-  );
-}
+    return Consumer<AuthViewModel>(
+      builder: (context, authViewModel, child) {
+        // Show error message if any
+        if (authViewModel.errorMessage != null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(authViewModel.errorMessage!),
+                backgroundColor: Colors.red,
+              ),
+            );
+            authViewModel.clearError();
+          });
+        }
+
+        return Column(
+          children: [
+            if (authViewModel.isLoading)
+              const Padding(
+                padding: EdgeInsets.only(bottom: 16.0),
+                child: CircularProgressIndicator(),
+              ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                minimumSize: const Size(double.infinity, 60),
+                elevation: 0,
+              ),
+              onPressed: authViewModel.isLoading
+                  ? null
+                  : () async {
+                      final success = await authViewModel.signIn(
+                        email: _emailController.text,
+                        password: _passwordController.text,
+                      );
+                      
+                      if (success && context.mounted) {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => SearchPage(),
+                          ),
+                        );
+                      }
+                    },
+              child: Text(
+                "Sign In",
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 16,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   Widget _signup(BuildContext context) {
     return Padding(
@@ -242,31 +291,39 @@ class _LoginState extends State<Login> {
   }
 
   Widget _forgotpassword(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-         _showForgotPasswordDialog(context);
-      },
-      child: MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: Container(
-          padding: EdgeInsets.all(5),
-          child: Text(
-            "Forgot Password?",
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.blue,
-              fontWeight: FontWeight.bold,
-              decoration: TextDecoration.underline,
-              decorationColor: Colors.blue,
-              decorationThickness: 2.0,
+    return Consumer<AuthViewModel>(
+      builder: (context, authViewModel, child) {
+        return GestureDetector(
+          onTap: authViewModel.isLoading
+              ? null
+              : () {
+                  _showForgotPasswordDialog(context, authViewModel);
+                },
+          child: MouseRegion(
+            cursor: authViewModel.isLoading
+                ? SystemMouseCursors.forbidden
+                : SystemMouseCursors.click,
+            child: Container(
+              padding: EdgeInsets.all(5),
+              child: Text(
+                "Forgot Password?",
+                style: TextStyle(
+                  fontSize: 16,
+                  color: authViewModel.isLoading ? Colors.grey : Colors.blue,
+                  fontWeight: FontWeight.bold,
+                  decoration: TextDecoration.underline,
+                  decorationColor: authViewModel.isLoading ? Colors.grey : Colors.blue,
+                  decorationThickness: 2.0,
+                ),
+              ),
             ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
   
-  void _showForgotPasswordDialog(BuildContext context) {
+  void _showForgotPasswordDialog(BuildContext context, AuthViewModel authViewModel) {
     TextEditingController emailController = TextEditingController(
       text: _emailController.text
     );
@@ -274,67 +331,79 @@ class _LoginState extends State<Login> {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("Reset Password"),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text("Enter your email address associated with the account and we will send you a password reset link"),
-              SizedBox(height: 16),
-              TextField(
-                controller: emailController,
-                decoration: InputDecoration(
-                  hintText: "Enter your email",
-                  border: OutlineInputBorder(),
-                ),
+        return Consumer<AuthViewModel>(
+          builder: (context, authViewModel, child) {
+            return AlertDialog(
+              title: Text("Reset Password"),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text("Enter your email address associated with the account and we will send you a password reset link"),
+                  SizedBox(height: 16),
+                  TextField(
+                    controller: emailController,
+                    decoration: InputDecoration(
+                      hintText: "Enter your email",
+                      border: OutlineInputBorder(),
+                    ),
+                  ),
+                  if (authViewModel.isLoading)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 16.0),
+                      child: CircularProgressIndicator(),
+                    ),
+                ],
               ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text("Cancel"),
-            ),
-            ElevatedButton(
-              onPressed: () async {
-                if (emailController.text.isNotEmpty) {
-                  Navigator.pop(context);
-                  try {
-                    await AuthService.forgotPassword(email: emailController.text);
-                    Fluttertoast.showToast(
-                      msg: "Password reset email has been sent",
-                      toastLength: Toast.LENGTH_LONG,
-                      gravity: ToastGravity.SNACKBAR,
-                      backgroundColor: Colors.green,
-                      textColor: Colors.white,
-                      fontSize: 16.0,
-                    );
-                  } catch (e) {
-                    Fluttertoast.showToast(
-                      msg: "Error: ${e.toString()}",
-                      toastLength: Toast.LENGTH_LONG,
-                      gravity: ToastGravity.SNACKBAR,
-                      backgroundColor: Colors.red,
-                      textColor: Colors.white,
-                      fontSize: 16.0,
-                    );
-                  }
-                } else {
-                  Fluttertoast.showToast(
-                    msg: "Please enter your email address",
-                    toastLength: Toast.LENGTH_LONG,
-                    gravity: ToastGravity.SNACKBAR,
-                    backgroundColor: Colors.black,
-                    textColor: Colors.white,
-                    fontSize: 16.0,
-                  );
-                }
-              }, 
-              child: Text("Reset password"),
-            )
-          ],
+              actions: [
+                TextButton(
+                  onPressed: authViewModel.isLoading ? null : () => Navigator.pop(context),
+                  child: Text("Cancel"),
+                ),
+                ElevatedButton(
+                  onPressed: authViewModel.isLoading
+                      ? null
+                      : () async {
+                          if (emailController.text.isNotEmpty) {
+                            final success = await authViewModel.forgotPassword(
+                              email: emailController.text,
+                            );
+                            
+                            if (success && context.mounted) {
+                              Navigator.pop(context);
+                              Fluttertoast.showToast(
+                                msg: "Password reset email has been sent",
+                                toastLength: Toast.LENGTH_LONG,
+                                gravity: ToastGravity.SNACKBAR,
+                                backgroundColor: Colors.green,
+                                textColor: Colors.white,
+                                fontSize: 16.0,
+                              );
+                            }
+                          } else {
+                            Fluttertoast.showToast(
+                              msg: "Please enter your email address",
+                              toastLength: Toast.LENGTH_LONG,
+                              gravity: ToastGravity.SNACKBAR,
+                              backgroundColor: Colors.black,
+                              textColor: Colors.white,
+                              fontSize: 16.0,
+                            );
+                          }
+                        }, 
+                  child: Text("Reset password"),
+                )
+              ],
+            );
+          },
         );
       },
     );
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
   }
 }

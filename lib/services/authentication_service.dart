@@ -1,56 +1,38 @@
-import 'package:find_my_pickle/view/home_page.dart';
-import 'package:find_my_pickle/view/login.dart';
-import 'package:find_my_pickle/view/search.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class AuthService {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  // Get current user
+  User? get currentUser => _auth.currentUser;
+  
+  // Check if user is logged in
+  bool isUserLoggedIn() => _auth.currentUser != null;
+
+  // Stream of auth state changes
+  Stream<User?> get authStateChanges => _auth.authStateChanges();
+
   Future<void> signup({
     required String email,
     required String password,
-    required BuildContext context
   }) async {
-  
     // Add validation for empty fields
     if (email.isEmpty || password.isEmpty) {
-      Fluttertoast.showToast(
-        msg: 'You must enter an email and password to sign up',
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.SNACKBAR,
-        backgroundColor: Colors.black54,
-        textColor: Colors.white,
-        fontSize: 14.0,
-      );
-      return; // Exit the function early
+      throw Exception('You must enter an email and password to sign up');
     }
 
     String trimmedEmail = email.trim();
-  
+
     // Additional validation for empty after trim
     if (trimmedEmail.isEmpty) {
-      Fluttertoast.showToast(
-        msg: 'Please enter a valid email address',
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.SNACKBAR,
-        backgroundColor: Colors.black54,
-        textColor: Colors.white,
-        fontSize: 14.0,
-      );
-      return;
+      throw Exception('Please enter a valid email address');
     }
 
     try {
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      await _auth.createUserWithEmailAndPassword(
         email: trimmedEmail,
         password: password
-      );
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => SearchPage()
-        )
       );
     
     } on FirebaseAuthException catch(e) {
@@ -64,82 +46,32 @@ class AuthService {
       } else {
         message = 'Authentication error: ${e.message}';
       }
-      Fluttertoast.showToast(
-        msg: message,
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.SNACKBAR,
-        backgroundColor: Colors.black54,
-        textColor: Colors.white,
-        fontSize: 14.0,
-      );
+      throw Exception(message);
     } catch(e) {
-      User? currentUser = FirebaseAuth.instance.currentUser;
-      if (currentUser != null) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(  // FIXED: Changed MaterialPageBuilder to MaterialPageRoute
-            builder: (context) => SearchPage()
-          )
-        );
-      } else {
-        Fluttertoast.showToast(
-          msg: 'An error occurred during signup. Please try again.',
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.SNACKBAR,
-          backgroundColor: Colors.black54,
-          textColor: Colors.white,
-          fontSize: 14.0,
-        );
-      }
+      throw Exception('An error occurred during signup. Please try again.');
     }
-  } // FIXED: Added missing closing brace for the signup method
+  }
 
   Future<void> signin({
     required String email,
     required String password,
-    required BuildContext context
   }) async {
-    
     try {
       String trimmedEmail = email.trim();
       
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
+      await _auth.signInWithEmailAndPassword(
         email: trimmedEmail,
         password: password
       );
-
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (BuildContext context) => SearchPage()
-        )
-      );
       
     } catch (e) {
-      User? currentUser = FirebaseAuth.instance.currentUser;
-      if (currentUser != null) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (BuildContext context) => SearchPage()
-          )
-        );
-      } else {
-        Fluttertoast.showToast(
-          msg: 'Login failed. Please check your email and password.',
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.SNACKBAR,
-          backgroundColor: Colors.black54,
-          textColor: Colors.white,
-          fontSize: 14.0,
-        );
-      }
+      throw Exception('Login failed. Please check your email and password.');
     }
   }
 
-  static Future forgotPassword({required String email}) async {
+  Future<void> forgotPassword({required String email}) async {
     try {
-      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+      await _auth.sendPasswordResetEmail(email: email);
     } on FirebaseAuthException catch (err) {
       throw Exception(err.message.toString());
     } catch (err) {
@@ -147,25 +79,11 @@ class AuthService {
     }
   }
 
-  static Future<void> signout({
-    required BuildContext context
-  }) async {
-    
+  Future<void> signout() async {
     try {
-      await FirebaseAuth.instance.signOut();
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (BuildContext context) => HomePage()
-        )
-      );
+      await _auth.signOut();
     } catch (e) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (BuildContext context) => HomePage()
-        )
-      );
+      throw Exception('Error signing out: ${e.toString()}');
     }
   }
 }

@@ -1,23 +1,33 @@
 import 'package:find_my_pickle/view/search.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:find_my_pickle/services/authentication_service.dart';
 import 'package:find_my_pickle/view/login.dart';
+import 'package:find_my_pickle/viewModel/auth_viewmodel.dart'; // Add ViewModel import
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart'; // Add Provider import
 
 class Signup extends StatefulWidget {
   Signup({super.key});
 
   @override
-  State<Signup> createState() => _SigninState();
+  State<Signup> createState() => _SignupState();
 }
 
-  class _SigninState extends State<Signup> {
+class _SignupState extends State<Signup> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isObscure = true;
+
+  @override
+  void initState() {
+    super.initState();
+    // Clear any existing errors when the screen loads
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
+      authViewModel.clearError();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,6 +38,24 @@ class Signup extends StatefulWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         toolbarHeight: 50,
+        leading: GestureDetector(
+          onTap: () {
+            Navigator.pop(context);
+          },
+          child: Container(
+            margin: const EdgeInsets.only(left: 10),
+            decoration: const BoxDecoration(
+              color: Color(0xffF7F7F9),
+              shape: BoxShape.circle
+            ),
+            child: const Center(
+              child: Icon(
+                Icons.arrow_back_ios_new_rounded,
+                color: Colors.black,
+              ),
+            ),
+          ),
+        ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -56,8 +84,7 @@ class Signup extends StatefulWidget {
                _signin(context),
             ],
           ),
-
-      ),
+        ),
       )
     );
   }
@@ -158,31 +185,67 @@ class Signup extends StatefulWidget {
   }
 
   Widget _signup(BuildContext context) {
-  return ElevatedButton(
-    style: ElevatedButton.styleFrom(
-      backgroundColor: Colors.blue,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(14),
-      ),
-      minimumSize: const Size(double.infinity, 60),
-      elevation: 0,
-    ),
-    onPressed: () async {
-      await AuthService().signup(
-        email: _emailController.text,
-        password: _passwordController.text,
-        context: context
-      );
-    },
-    child: Text(
-      "Sign Up",
-      style: TextStyle(
-        color: Colors.black,
-        fontSize: 16,
-      ),
-    ),
-  );
-}
+    return Consumer<AuthViewModel>(
+      builder: (context, authViewModel, child) {
+        // Show error message if any
+        if (authViewModel.errorMessage != null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(authViewModel.errorMessage!),
+                backgroundColor: Colors.red,
+              ),
+            );
+            authViewModel.clearError();
+          });
+        }
+
+        return Column(
+          children: [
+            if (authViewModel.isLoading)
+              const Padding(
+                padding: EdgeInsets.only(bottom: 16.0),
+                child: CircularProgressIndicator(),
+              ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.blue,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                minimumSize: const Size(double.infinity, 60),
+                elevation: 0,
+              ),
+              onPressed: authViewModel.isLoading
+                  ? null
+                  : () async {
+                      final success = await authViewModel.signUp(
+                        email: _emailController.text,
+                        password: _passwordController.text,
+                      );
+                      
+                      if (success && context.mounted) {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => SearchPage(),
+                          ),
+                        );
+                      }
+                    },
+              child: Text(
+                "Sign Up",
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 16,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   Widget _signin(BuildContext context) {
     return Padding(
@@ -219,5 +282,12 @@ class Signup extends StatefulWidget {
         )
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
   }
 }
