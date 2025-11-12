@@ -24,7 +24,13 @@ class GameViewModel with ChangeNotifier {
   }) async {
     final user = _auth.currentUser;
     if (user == null) throw Exception('User not authenticated');
-    
+
+    if (user.isAnonymous) {
+      throw Exception(
+        'Guest users cannot join games. Please create an account to join games.',
+      );
+    }
+
     _isLoading = true;
     notifyListeners();
 
@@ -32,11 +38,12 @@ class GameViewModel with ChangeNotifier {
       // Get user profile data - create if doesn't exist
       final userDoc = await _firestore.collection('users').doc(user.uid).get();
       Map<String, dynamic> userData = userDoc.data() ?? {};
-      
+
       // If user document doesn't exist, create basic user data
       if (!userDoc.exists) {
         userData = {
-          'displayName': user.displayName ?? user.email?.split('@').first ?? 'Player',
+          'displayName':
+              user.displayName ?? user.email?.split('@').first ?? 'Player',
           'email': user.email,
           'createdAt': FieldValue.serverTimestamp(),
         };
@@ -45,7 +52,9 @@ class GameViewModel with ChangeNotifier {
 
       String? profileImageUrl;
       try {
-        final profileRef = _storage.ref().child("users/${user.uid}/profile.jpg");
+        final profileRef = _storage.ref().child(
+          "users/${user.uid}/profile.jpg",
+        );
         profileImageUrl = await profileRef.getDownloadURL();
       } catch (e) {
         profileImageUrl = null;
@@ -53,28 +62,32 @@ class GameViewModel with ChangeNotifier {
 
       final player = Player(
         userId: user.uid,
-        userName: userData['displayName'] ?? user.email?.split('@').first ?? 'Player',
+        userName:
+            userData['displayName'] ?? user.email?.split('@').first ?? 'Player',
         profileImageUrl: profileImageUrl,
         joinedAt: DateTime.now(),
       );
 
       final gameId = '${courtId}_${gameDateTime.millisecondsSinceEpoch}';
-      final gameDoc = await _firestore.collection('gameSessions').doc(gameId).get();
+      final gameDoc = await _firestore
+          .collection('gameSessions')
+          .doc(gameId)
+          .get();
 
       if (gameDoc.exists) {
         final gameData = gameDoc.data()!;
         final players = (gameData['players'] as List<dynamic>? ?? [])
             .map((p) => Player.fromMap(p as Map<String, dynamic>))
             .toList();
-        
+
         if (players.any((p) => p.userId == user.uid)) {
           throw Exception('You have already joined this game');
         }
-        
+
         if (players.length >= (gameData['maxPlayers'] ?? 4)) {
           throw Exception('This game session is full');
         }
-        
+
         players.add(player);
 
         await _firestore.collection('gameSessions').doc(gameId).update({
@@ -91,12 +104,14 @@ class GameViewModel with ChangeNotifier {
           createdBy: user.uid,
         );
 
-        await _firestore.collection('gameSessions').doc(gameId).set(newGame.toFirestore());
+        await _firestore
+            .collection('gameSessions')
+            .doc(gameId)
+            .set(newGame.toFirestore());
       }
 
       // Reload games for this court after joining
       await loadUpcomingGamesForCourt(courtId);
-      
     } catch (e) {
       rethrow;
     } finally {
@@ -113,7 +128,10 @@ class GameViewModel with ChangeNotifier {
     notifyListeners();
 
     try {
-      final gameDoc = await _firestore.collection('gameSessions').doc(gameId).get();
+      final gameDoc = await _firestore
+          .collection('gameSessions')
+          .doc(gameId)
+          .get();
       if (!gameDoc.exists) return;
 
       final gameData = gameDoc.data()!;
@@ -130,12 +148,11 @@ class GameViewModel with ChangeNotifier {
           'players': players.map((p) => p.toMap()).toList(),
         });
       }
-      
+
       // Reload games after leaving
       if (_currentCourtId != null) {
         await loadUpcomingGamesForCourt(_currentCourtId!);
       }
-      
     } catch (e) {
       rethrow;
     } finally {
@@ -162,9 +179,8 @@ class GameViewModel with ChangeNotifier {
       _upcomingGames = snapshot.docs
           .map((doc) => GameModel.fromFirestore(doc.data(), doc.id))
           .toList();
-          
+
       print('Loaded ${_upcomingGames.length} games for court $courtId');
-          
     } catch (e) {
       print('Error loading games: $e');
     } finally {
@@ -177,7 +193,7 @@ class GameViewModel with ChangeNotifier {
   bool isUserInGame(GameModel game) {
     final user = _auth.currentUser;
     if (user == null) return false;
-    
+
     return game.players.any((player) => player.userId == user.uid);
   }
 
@@ -190,8 +206,10 @@ class GameViewModel with ChangeNotifier {
         .where('gameDateTime', isGreaterThanOrEqualTo: now)
         .orderBy('gameDateTime')
         .snapshots()
-        .map((snapshot) => snapshot.docs
-            .map((doc) => GameModel.fromFirestore(doc.data(), doc.id))
-            .toList());
+        .map(
+          (snapshot) => snapshot.docs
+              .map((doc) => GameModel.fromFirestore(doc.data(), doc.id))
+              .toList(),
+        );
   }
 }

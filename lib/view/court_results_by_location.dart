@@ -147,7 +147,7 @@ class _CourtResultsByLocationState extends State<CourtResultsByLocation> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Find Courts Near Me'),
+        title: Text('Find Courts Near You'),
         backgroundColor: Colors.blue,
       ),
       body: Center(
@@ -171,33 +171,18 @@ class _CourtResultsByLocationState extends State<CourtResultsByLocation> {
                     SizedBox(height: 16),
                     Text('Finding your location and courts...'),
                     SizedBox(height: 8),
-                    Text(
-                      _locationViewModel.locationMessage,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                    ),
                   ],
                 )
               else
                 ElevatedButton.icon(
                   onPressed: _getCurrentLocationAndCourts,
                   icon: Icon(Icons.location_on),
-                  label: Text('Find Courts Near Me'),
+                  label: Text('Find Courts Near You'),
                   style: ElevatedButton.styleFrom(
                     padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                   ),
                 ),
               SizedBox(height: 20),
-              if (!_isSearching)
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: Text(
-                      _locationViewModel.locationMessage,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 16, color: Colors.grey[600]),
-                    ),
-                  ),
-                ),
             ],
           ),
         ),

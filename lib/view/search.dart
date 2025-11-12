@@ -10,7 +10,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
-
+import 'package:permission_handler/permission_handler.dart';
 class SearchPage extends StatefulWidget {
   const SearchPage({super.key});
 
@@ -63,6 +63,30 @@ class _SearchPageState extends State<SearchPage> {
     if (image == null) return;
 
     setState(() => isLoadingProfile = true);
+     if (_isGuestUser) {
+    _showGuestUserError();
+    return;
+    }
+
+    // Request permission first
+  final PermissionStatus status = await Permission.photos.request();
+  
+  if (status.isDenied) {
+    // Permission was denied
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Photo library permission is required to change profile picture.'),
+        backgroundColor: Colors.red,
+      ),
+    );
+    return;
+  }
+  
+  if (status.isPermanentlyDenied) {
+    // Permission was permanently denied - show dialog to guide user to app settings
+    _showPermissionDeniedDialog();
+    return;
+  }
 
     try {
       final imageBytes = await image.readAsBytes();
@@ -92,6 +116,31 @@ class _SearchPageState extends State<SearchPage> {
       );
     }
   }
+
+  void _showPermissionDeniedDialog() {
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text('Permission Required'),
+      content: const Text(
+        'Photo library access is permanently denied. Please enable it in app settings to change your profile picture.',
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('CANCEL'),
+        ),
+        TextButton(
+          onPressed: () {
+            Navigator.pop(context);
+            openAppSettings(); // This opens the app settings page
+          },
+          child: const Text('SETTINGS'),
+        ),
+      ],
+    ),
+  );
+}
 
   void _showGuestUserError() {
     ScaffoldMessenger.of(context).showSnackBar(
