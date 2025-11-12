@@ -1,6 +1,6 @@
 import 'package:find_my_pickle/view/court_details_view.dart';
 import 'package:find_my_pickle/view/favorites_page.dart';
-import 'package:find_my_pickle/viewModel/favorites_viewModel.dart'; // <-- Import the REAL VM
+import 'package:find_my_pickle/viewModel/favorites_viewmodel.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:provider/provider.dart';
