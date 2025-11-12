@@ -2,8 +2,8 @@ import 'package:find_my_pickle/view/join_a_game.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:find_my_pickle/viewModel/favorites_viewModel.dart';
-import 'package:find_my_pickle/viewModel/directions_viewModel.dart';
+import 'package:find_my_pickle/viewModel/favorites_viewmodel.dart';
+import 'package:find_my_pickle/viewModel/directions_viewmodel.dart';
 import 'package:firebase_auth/firebase_auth.dart'; // ADD THIS IMPORT
 
 class CourtDetailPage extends StatefulWidget {

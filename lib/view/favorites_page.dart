@@ -1,7 +1,7 @@
 import 'package:find_my_pickle/view/court_details_view.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../viewModel/favorites_viewModel.dart';
+import '../viewModel/favorites_viewmodel.dart';
 
 // create a favorite page 
 class FavoritesPage extends StatelessWidget {
