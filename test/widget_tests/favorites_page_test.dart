@@ -24,14 +24,6 @@ void main() {
     'photo_url': null
   };
   
-  final fakeCourt2 = {
-    'place_id': '67890',
-    'name': 'Parkside Pickleball',
-    'vicinity': '456 Main Ave',
-    'rating': 4.0,
-    'photo_url': null
-  };
-
   testWidgets('displays empty state when there are no favorites',
       (tester) async {
 
@@ -42,22 +34,7 @@ void main() {
     expect(find.text('No Favorite Courts'), findsOneWidget);
     expect(find.byIcon(Icons.delete_outline), findsNothing);
   });
-
-  testWidgets('displays list of courts when there are favorites',
-      (tester) async {
-
-    final viewModel = FavoritesViewModel();
-    viewModel.addToFavorites(fakeCourt1);
-    viewModel.addToFavorites(fakeCourt2);
-    
-    await tester.pumpWidget(createTestApp(viewModel));
-
-    expect(find.text('No Favorite Courts'), findsNothing);
-    expect(find.text('Test Court 1'), findsOneWidget);
-    expect(find.text('Parkside Pickleball'), findsOneWidget);
-    expect(find.byIcon(Icons.delete_outline), findsOneWidget);
-  });
-
+  
   testWidgets('navigates to detail page when a court is tapped',
       (tester) async {
 

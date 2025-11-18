@@ -1,17 +1,14 @@
-import 'package:find_my_pickle/services/authentication_service.dart';
 import 'package:find_my_pickle/view/signup.dart';
-import 'package:find_my_pickle/view/search.dart'; // Add this import
-import 'package:find_my_pickle/viewModel/auth_viewmodel.dart'; // Add ViewModel import
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:find_my_pickle/view/search.dart';
+import 'package:find_my_pickle/viewModel/auth_viewmodel.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:flutter/services.dart';
-import 'package:provider/provider.dart'; // Add Provider import
+import 'package:provider/provider.dart';
 
 class Login extends StatefulWidget {
-  Login({super.key});
+  const Login({super.key});
 
   @override
   State<Login> createState() => _LoginState();
@@ -48,9 +45,7 @@ class _LoginState extends State<Login> {
           child: Container(
             margin: const EdgeInsets.only(left: 10),
             decoration: const BoxDecoration(
-              color: Color(0xffF7F7F9),
-              shape: BoxShape.circle
-            ),
+                color: Color(0xffF7F7F9), shape: BoxShape.circle),
             child: const Center(
               child: Icon(
                 Icons.arrow_back_ios_new_rounded,
@@ -62,7 +57,7 @@ class _LoginState extends State<Login> {
       ),
       body: SafeArea(
         child: SingleChildScrollView(
-         padding: const EdgeInsets.symmetric(horizontal: 16,vertical: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
@@ -70,23 +65,21 @@ class _LoginState extends State<Login> {
                 child: Text(
                   'Hello Again',
                   style: GoogleFonts.raleway(
-                    textStyle: const TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 32
-                    )
-                  ),
+                      textStyle: const TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 32)),
                 ),
               ),
               const SizedBox(height: 80),
-               _emailAddress(),
-               const SizedBox(height: 20),
-               _password(),
-               const SizedBox(height: 50),
-               _signin(context),
-               const SizedBox(height: 50),
-               _signup(context),
-               const SizedBox(height: 20),
+              _emailAddress(),
+              const SizedBox(height: 20),
+              _password(),
+              const SizedBox(height: 50),
+              _signin(context),
+              const SizedBox(height: 50),
+              _signup(context),
+              const SizedBox(height: 20),
               _forgotpassword(context),
             ],
           ),
@@ -94,7 +87,7 @@ class _LoginState extends State<Login> {
       ),
     );
   }
-  
+
   Widget _emailAddress() {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
@@ -103,30 +96,28 @@ class _LoginState extends State<Login> {
         Text(
           'Email Address',
           style: GoogleFonts.raleway(
-            textStyle: const TextStyle(
-              color: Colors.black,
-              fontWeight: FontWeight.normal,
-              fontSize: 16
-            )
-          ),
+              textStyle: const TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.normal,
+                  fontSize: 16)),
         ),
-        const SizedBox(height: 16,),
+        const SizedBox(
+          height: 16,
+        ),
         TextField(
           controller: _emailController,
+          key: const Key('email_textfield'),
           decoration: InputDecoration(
-            filled: true,
-            hintText: 'sageyanoff@gmail.com',
-            hintStyle: const TextStyle(
-              color: Color(0xff6A6A6A),
-              fontWeight: FontWeight.normal,
-              fontSize: 14
-            ),
-            fillColor: const Color(0xffF7F7F9) ,
-            border: OutlineInputBorder(
-              borderSide: BorderSide.none,
-              borderRadius: BorderRadius.circular(14)
-            )
-          ),
+              filled: true,
+              hintText: 'sageyanoff@gmail.com',
+              hintStyle: const TextStyle(
+                  color: Color(0xff6A6A6A),
+                  fontWeight: FontWeight.normal,
+                  fontSize: 14),
+              fillColor: const Color(0xffF7F7F9),
+              border: OutlineInputBorder(
+                  borderSide: BorderSide.none,
+                  borderRadius: BorderRadius.circular(14))),
         )
       ],
     );
@@ -140,51 +131,49 @@ class _LoginState extends State<Login> {
         Text(
           'Password',
           style: GoogleFonts.raleway(
-            textStyle: const TextStyle(
-              color: Colors.black,
-              fontWeight: FontWeight.normal,
-              fontSize: 16
-            )
-          ),
+              textStyle: const TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.normal,
+                  fontSize: 16)),
         ),
         const SizedBox(height: 16),
         TextField(
           obscureText: _isObscure,
           controller: _passwordController,
+          key: const Key('password_textfield'),
           decoration: InputDecoration(
-            filled: true,
-            fillColor: const Color(0xffF7F7F9),
-            hintText: 'Enter your password',
-            hintStyle: const TextStyle(
-              color: Color(0xff6A6A6A),
-            ),
-            prefixIcon: Icon(
-              Icons.lock,
-              color: Color(0xfff28800),
-            ),
-            suffixIcon: IconButton(
-              padding: const EdgeInsets.all(0),
-              iconSize: 20.0,
-              icon: _isObscure
-                  ? const Icon(
-                      Icons.visibility_off,
-                      color: Colors.grey,
-                    )
-                  : const Icon(
-                      Icons.visibility,
-                      color: Colors.black,
-                    ),
-              onPressed: () {
-                setState(() {
-                  _isObscure = !_isObscure;
-                });
-              },
-            ),
-            border: OutlineInputBorder(
-              borderSide: BorderSide.none,
-              borderRadius: BorderRadius.circular(14)
-            )
-          ),
+              filled: true,
+              fillColor: const Color(0xffF7F7F9),
+              hintText: 'Enter your password',
+              hintStyle: const TextStyle(
+                color: Color(0xff6A6A6A),
+              ),
+              prefixIcon: Icon(
+                Icons.lock,
+                color: Color(0xfff28800),
+              ),
+              suffixIcon: IconButton(
+                key: const Key('password_visibility_icon'),
+                padding: const EdgeInsets.all(0),
+                iconSize: 20.0,
+                icon: _isObscure
+                    ? const Icon(
+                        Icons.visibility_off,
+                        color: Colors.grey,
+                      )
+                    : const Icon(
+                        Icons.visibility,
+                        color: Colors.black,
+                      ),
+                onPressed: () {
+                  setState(() {
+                    _isObscure = !_isObscure;
+                  });
+                },
+              ),
+              border: OutlineInputBorder(
+                  borderSide: BorderSide.none,
+                  borderRadius: BorderRadius.circular(14))),
         )
       ],
     );
@@ -214,6 +203,7 @@ class _LoginState extends State<Login> {
                 child: CircularProgressIndicator(),
               ),
             ElevatedButton(
+              key: const Key('signin_button'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.blue,
                 shape: RoundedRectangleBorder(
@@ -229,7 +219,7 @@ class _LoginState extends State<Login> {
                         email: _emailController.text,
                         password: _passwordController.text,
                       );
-                      
+
                       if (success && context.mounted) {
                         Navigator.pushReplacement(
                           context,
@@ -257,36 +247,30 @@ class _LoginState extends State<Login> {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: RichText(
-        textAlign: TextAlign.center,
-        text: TextSpan(
-          children: [
+          textAlign: TextAlign.center,
+          text: TextSpan(children: [
             const TextSpan(
                 text: "New User? ",
                 style: TextStyle(
-                  color: Color(0xff6A6A6A),
-                  fontWeight: FontWeight.normal,
-                  fontSize: 16
-                ),
-              ),
-              TextSpan(
+                    color: Color(0xff6A6A6A),
+                    fontWeight: FontWeight.normal,
+                    fontSize: 16)),
+            TextSpan(
                 text: "Create Account",
                 style: const TextStyle(
                     color: Color(0xff1A1D1E),
                     fontWeight: FontWeight.normal,
-                    fontSize: 16
-                  ),
-                  recognizer: TapGestureRecognizer()..onTap = () {
+                    fontSize: 16),
+                recognizer: TapGestureRecognizer()
+                  ..onTap = () {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
                         builder: (context) => Signup(),
                       ),
                     );
-                  }
-              ),
-          ]
-        )
-      ),
+                  }),
+          ])),
     );
   }
 
@@ -312,7 +296,8 @@ class _LoginState extends State<Login> {
                   color: authViewModel.isLoading ? Colors.grey : Colors.blue,
                   fontWeight: FontWeight.bold,
                   decoration: TextDecoration.underline,
-                  decorationColor: authViewModel.isLoading ? Colors.grey : Colors.blue,
+                  decorationColor:
+                      authViewModel.isLoading ? Colors.grey : Colors.blue,
                   decorationThickness: 2.0,
                 ),
               ),
@@ -322,11 +307,11 @@ class _LoginState extends State<Login> {
       },
     );
   }
-  
-  void _showForgotPasswordDialog(BuildContext context, AuthViewModel authViewModel) {
-    TextEditingController emailController = TextEditingController(
-      text: _emailController.text
-    );
+
+  void _showForgotPasswordDialog(
+      BuildContext context, AuthViewModel authViewModel) {
+    TextEditingController emailController =
+        TextEditingController(text: _emailController.text);
 
     showDialog(
       context: context,
@@ -338,9 +323,11 @@ class _LoginState extends State<Login> {
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text("Enter your email address associated with the account and we will send you a password reset link"),
+                  Text(
+                      "Enter your email address associated with the account and we will send you a password reset link"),
                   SizedBox(height: 16),
                   TextField(
+                    key: const Key('forgot_password_email_textfield'),
                     controller: emailController,
                     decoration: InputDecoration(
                       hintText: "Enter your email",
@@ -356,10 +343,12 @@ class _LoginState extends State<Login> {
               ),
               actions: [
                 TextButton(
-                  onPressed: authViewModel.isLoading ? null : () => Navigator.pop(context),
+                  onPressed:
+                      authViewModel.isLoading ? null : () => Navigator.pop(context),
                   child: Text("Cancel"),
                 ),
                 ElevatedButton(
+                  key: const Key('forgot_password_send_button'),
                   onPressed: authViewModel.isLoading
                       ? null
                       : () async {
@@ -367,7 +356,7 @@ class _LoginState extends State<Login> {
                             final success = await authViewModel.forgotPassword(
                               email: emailController.text,
                             );
-                            
+
                             if (success && context.mounted) {
                               Navigator.pop(context);
                               Fluttertoast.showToast(
@@ -389,7 +378,7 @@ class _LoginState extends State<Login> {
                               fontSize: 16.0,
                             );
                           }
-                        }, 
+                        },
                   child: Text("Reset password"),
                 )
               ],
