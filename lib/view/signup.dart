@@ -4,8 +4,10 @@ import 'package:find_my_pickle/view/login.dart';
 import 'package:find_my_pickle/viewModel/auth_viewmodel.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart'; 
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'dart:math' as math;
 
 class Signup extends StatefulWidget {
   const Signup({super.key});
@@ -14,18 +16,34 @@ class Signup extends StatefulWidget {
   State<Signup> createState() => _SignupState();
 }
 
-class _SignupState extends State<Signup> {
+class _SignupState extends State<Signup> with SingleTickerProviderStateMixin {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isObscure = true;
 
+  late AnimationController _shakeController;
+
   @override
   void initState() {
     super.initState();
+    
+    _shakeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
       authViewModel.clearError();
     });
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    _shakeController.dispose();
+    super.dispose();
   }
 
   @override
@@ -39,6 +57,7 @@ class _SignupState extends State<Signup> {
           toolbarHeight: 50,
           leading: GestureDetector(
             onTap: () {
+              HapticFeedback.lightImpact(); 
               Navigator.pop(context);
             },
             child: Container(
@@ -57,35 +76,57 @@ class _SignupState extends State<Signup> {
         body: SafeArea(
           child: SingleChildScrollView(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-            child: Column(
-              children: [
-                Center(
-                  child: Text(
-                    'Create Account',
-                    style: GoogleFonts.raleway(
-                        textStyle: const TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 32)),
+            child: TweenAnimationBuilder<double>(
+              tween: Tween(begin: 0.0, end: 1.0),
+              duration: const Duration(milliseconds: 800),
+              curve: Curves.easeOutQuart,
+              builder: (context, value, child) {
+                return Opacity(
+                  opacity: value,
+                  child: Transform.translate(
+                    offset: Offset(0, 30 * (1 - value)),
+                    child: child,
                   ),
-                ),
-                const SizedBox(
-                  height: 80,
-                ),
-                _emailAddress(),
-                const SizedBox(
-                  height: 20,
-                ),
-                _password(),
-                const SizedBox(
-                  height: 50,
-                ),
-                _signup(context),
-                const SizedBox(
-                  height: 50,
-                ),
-                _signin(context),
-              ],
+                );
+              },
+              child: Column(
+                children: [
+                  Center(
+                    child: Text(
+                      'Create Account',
+                      style: GoogleFonts.raleway(
+                          textStyle: const TextStyle(
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 32)),
+                    ),
+                  ),
+                  const SizedBox(height: 80),
+                  
+                  AnimatedBuilder(
+                    animation: _shakeController,
+                    builder: (context, child) {
+                      final sineValue = math.sin(4 * math.pi * _shakeController.value);
+                      return Transform.translate(
+                        offset: Offset(sineValue * 10, 0),
+                        child: child,
+                      );
+                    },
+                    child: Column(
+                      children: [
+                        _emailAddress(),
+                        const SizedBox(height: 20),
+                        _password(),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 50),
+                  _signup(context),
+                  const SizedBox(height: 50),
+                  _signin(context),
+                ],
+              ),
             ),
           ),
         ));
@@ -158,16 +199,17 @@ class _SignupState extends State<Signup> {
               suffixIcon: IconButton(
                 padding: const EdgeInsets.all(0),
                 iconSize: 20.0,
-                icon: _isObscure
-                    ? const Icon(
-                        Icons.visibility_off,
-                        color: Colors.grey,
-                      )
-                    : const Icon(
-                        Icons.visibility,
-                        color: Colors.black,
-                      ),
+                icon: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  transitionBuilder: (child, anim) => ScaleTransition(scale: anim, child: child),
+                  child: _isObscure
+                      ? const Icon(Icons.visibility_off,
+                          color: Colors.grey, key: ValueKey('off'))
+                      : const Icon(Icons.visibility,
+                          color: Colors.black, key: ValueKey('on')),
+                ),
                 onPressed: () {
+                  HapticFeedback.selectionClick();
                   setState(() {
                     _isObscure = !_isObscure;
                   });
@@ -216,18 +258,24 @@ class _SignupState extends State<Signup> {
               onPressed: authViewModel.isLoading
                   ? null
                   : () async {
+                      HapticFeedback.lightImpact(); 
+                      
                       final success = await authViewModel.signUp(
                         email: _emailController.text,
                         password: _passwordController.text,
                       );
 
                       if (success && context.mounted) {
+                        HapticFeedback.mediumImpact();
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
                             builder: (context) => SearchPage(),
                           ),
                         );
+                      } else {
+                        HapticFeedback.heavyImpact();
+                        _shakeController.forward(from: 0.0);
                       }
                     },
               child: Text(
@@ -251,12 +299,11 @@ class _SignupState extends State<Signup> {
           textAlign: TextAlign.center,
           text: TextSpan(children: [
             const TextSpan(
-              text: "Already Have Account? ",
-              style: TextStyle(
-                  color: Color(0xff6A6A6A),
-                  fontWeight: FontWeight.normal,
-                  fontSize: 16),
-            ),
+                text: "Already Have Account? ",
+                style: TextStyle(
+                    color: Color(0xff6A6A6A),
+                    fontWeight: FontWeight.normal,
+                    fontSize: 16)),
             TextSpan(
                 text: "Log In",
                 style: const TextStyle(
@@ -265,6 +312,7 @@ class _SignupState extends State<Signup> {
                     fontSize: 16),
                 recognizer: TapGestureRecognizer()
                   ..onTap = () {
+                    HapticFeedback.lightImpact();
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -276,10 +324,4 @@ class _SignupState extends State<Signup> {
     );
   }
 
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
-  }
 }
