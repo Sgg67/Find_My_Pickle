@@ -1,5 +1,6 @@
 import 'package:find_my_pickle/view/join_a_game.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:find_my_pickle/viewModel/favorites_viewmodel.dart';
@@ -24,6 +25,7 @@ class _CourtDetailPageState extends State<CourtDetailPage> {
   }
 
   void _showGuestUserError() {
+    HapticFeedback.heavyImpact();
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text(
@@ -60,145 +62,166 @@ class _CourtDetailPageState extends State<CourtDetailPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Image section
-              SizedBox(
-                height: 250,
-                width: double.infinity,
-                child: photoUrl != null
-                    ? Image.network(
-                        photoUrl,
-                        fit: BoxFit.cover,
-                        loadingBuilder: (context, child, loadingProgress) {
-                          if (loadingProgress == null) return child;
-                          return const Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        },
-                        errorBuilder: (context, error, stackTrace) {
-                          return Container(
-                            color: Colors.grey[300],
-                            child: Icon(
-                              Icons.sports_tennis,
-                              size: 80,
-                              color: Colors.grey[600],
-                            ),
-                          );
-                        },
-                      )
-                    : Container(
-                        color: Colors.grey[300],
-                        child: Icon(
-                          Icons.sports_tennis,
-                          size: 80,
-                          color: Colors.grey[600],
-                        ),
-                      ),
-              ),
-
-              // Details section
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Court Name
-                    Text(
-                      name,
-                      style: const TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-
-                    // Rating
-                    Row(
-                      children: [
-                        const Icon(Icons.star, color: Colors.amber, size: 20),
-                        const SizedBox(width: 4),
-                        Text(rating, style: const TextStyle(fontSize: 16)),
-                        const SizedBox(width: 16),
-                        if (openNow != null)
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 4,
-                            ),
-                            decoration: BoxDecoration(
-                              color: openNow ? Colors.green : Colors.red,
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Text(
-                              openNow ? 'OPEN' : 'CLOSED',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 12,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-
-                    // Address
-                    _buildDetailSection(
-                      icon: Icons.location_on,
-                      title: 'Address',
-                      content: vicinity,
-                    ),
-
-                    // Action Buttons
-                    const SizedBox(height: 24),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: () =>
-                                _handleGetDirections(context, name, vicinity),
-                            icon: const Icon(Icons.directions),
-                            label: const Text('Get Directions'),
-                            style: ElevatedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 12),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: OutlinedButton.icon(
-                            onPressed: () => _handleShare(context),
-                            icon: const Icon(Icons.share),
-                            label: const Text('Share'),
-                          ),
-                        ),
-                      ],
-                    ),
-
-                    const SizedBox(height: 20),
-                    SizedBox(
-                      width: double.infinity,
-                      child: ElevatedButton.icon(
-                        onPressed: () {
-                          if (_isGuestUser()) {
-                            _showGuestUserError(); // Show error message for guest users
-                          } else {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    JoinAGame(court: widget.court),
+              Hero(
+                tag: photoUrl ?? name,
+                child: SizedBox(
+                  height: 250,
+                  width: double.infinity,
+                  child: photoUrl != null
+                      ? Image.network(
+                          photoUrl,
+                          fit: BoxFit.cover,
+                          loadingBuilder: (context, child, loadingProgress) {
+                            if (loadingProgress == null) return child;
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          },
+                          errorBuilder: (context, error, stackTrace) {
+                            return Container(
+                              color: Colors.grey[300],
+                              child: Icon(
+                                Icons.sports_tennis,
+                                size: 80,
+                                color: Colors.grey[600],
                               ),
                             );
-                          }
-                        },
-                        icon: const Icon(Icons.sports_tennis),
-                        label: const Text('Join a Game'),
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          },
+                        )
+                      : Container(
+                          color: Colors.grey[300],
+                          child: Icon(
+                            Icons.sports_tennis,
+                            size: 80,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                ),
+              ),
+
+              TweenAnimationBuilder<double>(
+                tween: Tween(begin: 0.0, end: 1.0),
+                duration: const Duration(milliseconds: 800),
+                curve: Curves.easeOutQuart,
+                builder: (context, value, child) {
+                  return Transform.translate(
+                    offset: Offset(0, 50 * (1 - value)),
+                    child: Opacity(
+                      opacity: value,
+                      child: child,
+                    ),
+                  );
+                },
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Court Name
+                      Text(
+                        name,
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                    ),
-                  ],
+                      const SizedBox(height: 8),
+
+                      // Rating
+                      Row(
+                        children: [
+                          const Icon(Icons.star, color: Colors.amber, size: 20),
+                          const SizedBox(width: 4),
+                          Text(rating, style: const TextStyle(fontSize: 16)),
+                          const SizedBox(width: 16),
+                          if (openNow != null)
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: openNow ? Colors.green : Colors.red,
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Text(
+                                openNow ? 'OPEN' : 'CLOSED',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+
+                      // Address
+                      _buildDetailSection(
+                        icon: Icons.location_on,
+                        title: 'Address',
+                        content: vicinity,
+                      ),
+
+                      // Action Buttons
+                      const SizedBox(height: 24),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: ElevatedButton.icon(
+                              onPressed: () {
+                                HapticFeedback.lightImpact(); // Haptic
+                                _handleGetDirections(context, name, vicinity);
+                              },
+                              icon: const Icon(Icons.directions),
+                              label: const Text('Get Directions'),
+                              style: ElevatedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(vertical: 12),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              onPressed: () {
+                                HapticFeedback.lightImpact(); // Haptic
+                                _handleShare(context);
+                              },
+                              icon: const Icon(Icons.share),
+                              label: const Text('Share'),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      const SizedBox(height: 20),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            HapticFeedback.mediumImpact(); // Stronger Haptic
+                            if (_isGuestUser()) {
+                              _showGuestUserError(); 
+                            } else {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      JoinAGame(court: widget.court),
+                                ),
+                              );
+                            }
+                          },
+                          icon: const Icon(Icons.sports_tennis),
+                          label: const Text('Join a Game'),
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
@@ -238,12 +261,19 @@ class _CourtDetailPageState extends State<CourtDetailPage> {
         final isFavorite = favoritesViewModel.isCourtInFavorites(widget.court);
 
         return IconButton(
-          icon: Icon(
-            isFavorite ? Icons.favorite : Icons.favorite_border,
-            color: isFavorite ? Colors.red : Colors.white,
+          icon: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 300),
+            transitionBuilder: (child, anim) => ScaleTransition(scale: anim, child: child),
+            child: Icon(
+              isFavorite ? Icons.favorite : Icons.favorite_border,
+              key: ValueKey(isFavorite), // Key detects change for animation
+              color: isFavorite ? Colors.red : Colors.white,
+            ),
           ),
-          onPressed: () =>
-              _handleFavoriteToggle(context, favoritesViewModel, isFavorite),
+          onPressed: () {
+            HapticFeedback.selectionClick(); // Toggle Haptic
+            _handleFavoriteToggle(context, favoritesViewModel, isFavorite);
+          },
         );
       },
     );
@@ -261,6 +291,7 @@ class _CourtDetailPageState extends State<CourtDetailPage> {
         address: address,
       );
     } catch (e) {
+      HapticFeedback.heavyImpact(); // Error Haptic
       _showNoMapsAppDialog(context);
     }
   }
@@ -300,6 +331,7 @@ class _CourtDetailPageState extends State<CourtDetailPage> {
     try {
       await Share.share(shareText, subject: "Pickleball Court: $name");
     } catch (e) {
+      HapticFeedback.heavyImpact(); // Error Haptic
       _showShareError(context);
     }
   }
