@@ -1,6 +1,6 @@
 import 'package:find_my_pickle/model/game_model.dart';
 import 'package:find_my_pickle/viewModel/games_viewmodel.dart';
-import 'package:firebase_auth/firebase_auth.dart'; // ADD THIS IMPORT
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -18,13 +18,10 @@ class _JoinAGameState extends State<JoinAGame> {
   TimeOfDay? _selectedTime;
   final List<int> _availableHours = [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20];
 
-  // ADD THIS METHOD TO CHECK IF USER IS GUEST
   bool _isGuestUser() {
     final user = FirebaseAuth.instance.currentUser;
     return user != null && user.isAnonymous;
   }
-
-  // ADD THIS METHOD TO SHOW GUEST USER ERROR
   void _showGuestUserError() {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
@@ -528,7 +525,6 @@ class _JoinAGameState extends State<JoinAGame> {
   }
 
   Future<void> _joinExistingGame(GameViewModel gameViewModel, GameModel game) async {
-    // ADD GUEST CHECK HERE TOO
     if (_isGuestUser()) {
       _showGuestUserError();
       return;

@@ -3,9 +3,11 @@ import 'package:find_my_pickle/view/search.dart';
 import 'package:find_my_pickle/viewModel/auth_viewmodel.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'dart:math' as math;
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -14,19 +16,35 @@ class Login extends StatefulWidget {
   State<Login> createState() => _LoginState();
 }
 
-class _LoginState extends State<Login> {
+class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _isObscure = true;
 
+  // Animation Controller for shaking
+  late AnimationController _shakeController;
+
   @override
   void initState() {
     super.initState();
-    // Clear any existing errors when the screen loads
+
+    _shakeController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 500),
+    );
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final authViewModel = Provider.of<AuthViewModel>(context, listen: false);
       authViewModel.clearError();
     });
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    _shakeController.dispose();
+    super.dispose();
   }
 
   @override
@@ -40,6 +58,7 @@ class _LoginState extends State<Login> {
         toolbarHeight: 100,
         leading: GestureDetector(
           onTap: () {
+            HapticFeedback.lightImpact(); // Haptic on back
             Navigator.pop(context);
           },
           child: Container(
@@ -47,10 +66,7 @@ class _LoginState extends State<Login> {
             decoration: const BoxDecoration(
                 color: Color(0xffF7F7F9), shape: BoxShape.circle),
             child: const Center(
-              child: Icon(
-                Icons.arrow_back_ios_new_rounded,
-                color: Colors.black,
-              ),
+              child: Icon(Icons.arrow_back_ios_new_rounded, color: Colors.black),
             ),
           ),
         ),
@@ -58,30 +74,61 @@ class _LoginState extends State<Login> {
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              Center(
-                child: Text(
-                  'Hello Again',
-                  style: GoogleFonts.raleway(
-                      textStyle: const TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 32)),
+          child: TweenAnimationBuilder<double>(
+            tween: Tween(begin: 0.0, end: 1.0),
+            duration: const Duration(milliseconds: 800),
+            curve: Curves.easeOutQuart,
+            builder: (context, value, child) {
+              return Opacity(
+                opacity: value,
+                child: Transform.translate(
+                  offset: Offset(0, 30 * (1 - value)), // Slide up effect
+                  child: child,
                 ),
-              ),
-              const SizedBox(height: 80),
-              _emailAddress(),
-              const SizedBox(height: 20),
-              _password(),
-              const SizedBox(height: 50),
-              _signin(context),
-              const SizedBox(height: 50),
-              _signup(context),
-              const SizedBox(height: 20),
-              _forgotpassword(context),
-            ],
+              );
+            },
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Center(
+                  child: Text(
+                    'Hello Again',
+                    style: GoogleFonts.raleway(
+                        textStyle: const TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 32)),
+                  ),
+                ),
+                const SizedBox(height: 80),
+
+                AnimatedBuilder(
+                  animation: _shakeController,
+                  builder: (context, child) {
+                    // Math for shaking left and right
+                    final sineValue = math.sin(4 * math.pi * _shakeController.value);
+                    return Transform.translate(
+                      offset: Offset(sineValue * 10, 0),
+                      child: child,
+                    );
+                  },
+                  child: Column(
+                    children: [
+                      _emailAddress(),
+                      const SizedBox(height: 20),
+                      _password(),
+                    ],
+                  ),
+                ),
+                
+                const SizedBox(height: 50),
+                _signin(context),
+                const SizedBox(height: 50),
+                _signup(context),
+                const SizedBox(height: 20),
+                _forgotpassword(context),
+              ],
+            ),
           ),
         ),
       ),
@@ -101,9 +148,7 @@ class _LoginState extends State<Login> {
                   fontWeight: FontWeight.normal,
                   fontSize: 16)),
         ),
-        const SizedBox(
-          height: 16,
-        ),
+        const SizedBox(height: 16),
         TextField(
           controller: _emailController,
           key: const Key('email_textfield'),
@@ -145,27 +190,21 @@ class _LoginState extends State<Login> {
               filled: true,
               fillColor: const Color(0xffF7F7F9),
               hintText: 'Enter your password',
-              hintStyle: const TextStyle(
-                color: Color(0xff6A6A6A),
-              ),
-              prefixIcon: Icon(
-                Icons.lock,
-                color: Color(0xfff28800),
-              ),
+              hintStyle: const TextStyle(color: Color(0xff6A6A6A)),
+              prefixIcon: const Icon(Icons.lock, color: Color(0xfff28800)),
               suffixIcon: IconButton(
                 key: const Key('password_visibility_icon'),
                 padding: const EdgeInsets.all(0),
                 iconSize: 20.0,
-                icon: _isObscure
-                    ? const Icon(
-                        Icons.visibility_off,
-                        color: Colors.grey,
-                      )
-                    : const Icon(
-                        Icons.visibility,
-                        color: Colors.black,
-                      ),
+                icon: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  transitionBuilder: (child, anim) => ScaleTransition(scale: anim, child: child),
+                  child: _isObscure
+                      ? const Icon(Icons.visibility_off, color: Colors.grey, key: ValueKey('off'))
+                      : const Icon(Icons.visibility, color: Colors.black, key: ValueKey('on')),
+                ),
                 onPressed: () {
+                  HapticFeedback.selectionClick();
                   setState(() {
                     _isObscure = !_isObscure;
                   });
@@ -182,7 +221,6 @@ class _LoginState extends State<Login> {
   Widget _signin(BuildContext context) {
     return Consumer<AuthViewModel>(
       builder: (context, authViewModel, child) {
-        // Show error message if any
         if (authViewModel.errorMessage != null) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             ScaffoldMessenger.of(context).showSnackBar(
@@ -215,21 +253,27 @@ class _LoginState extends State<Login> {
               onPressed: authViewModel.isLoading
                   ? null
                   : () async {
+                      HapticFeedback.lightImpact();
+                      
                       final success = await authViewModel.signIn(
                         email: _emailController.text,
                         password: _passwordController.text,
                       );
 
                       if (success && context.mounted) {
+                        HapticFeedback.mediumImpact();
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
                             builder: (context) => SearchPage(),
                           ),
                         );
+                      } else {
+                        HapticFeedback.heavyImpact();
+                        _shakeController.forward(from: 0.0);
                       }
                     },
-              child: Text(
+              child: const Text(
                 "Sign In",
                 style: TextStyle(
                   color: Colors.black,
@@ -263,6 +307,7 @@ class _LoginState extends State<Login> {
                     fontSize: 16),
                 recognizer: TapGestureRecognizer()
                   ..onTap = () {
+                    HapticFeedback.lightImpact();
                     Navigator.push(
                       context,
                       MaterialPageRoute(
@@ -281,6 +326,7 @@ class _LoginState extends State<Login> {
           onTap: authViewModel.isLoading
               ? null
               : () {
+                  HapticFeedback.lightImpact();
                   _showForgotPasswordDialog(context, authViewModel);
                 },
           child: MouseRegion(
@@ -288,7 +334,7 @@ class _LoginState extends State<Login> {
                 ? SystemMouseCursors.forbidden
                 : SystemMouseCursors.click,
             child: Container(
-              padding: EdgeInsets.all(5),
+              padding: const EdgeInsets.all(5),
               child: Text(
                 "Forgot Password?",
                 style: TextStyle(
@@ -352,6 +398,7 @@ class _LoginState extends State<Login> {
                   onPressed: authViewModel.isLoading
                       ? null
                       : () async {
+                          HapticFeedback.lightImpact(); 
                           if (emailController.text.isNotEmpty) {
                             final success = await authViewModel.forgotPassword(
                               email: emailController.text,
@@ -369,6 +416,7 @@ class _LoginState extends State<Login> {
                               );
                             }
                           } else {
+                            HapticFeedback.heavyImpact();
                             Fluttertoast.showToast(
                               msg: "Please enter your email address",
                               toastLength: Toast.LENGTH_LONG,
@@ -387,12 +435,5 @@ class _LoginState extends State<Login> {
         );
       },
     );
-  }
-
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _passwordController.dispose();
-    super.dispose();
   }
 }

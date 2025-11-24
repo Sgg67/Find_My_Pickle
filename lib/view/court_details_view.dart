@@ -18,13 +18,11 @@ class CourtDetailPage extends StatefulWidget {
 class _CourtDetailPageState extends State<CourtDetailPage> {
   late DirectionsViewModel _directionsViewModel;
 
-  // ADD THIS METHOD TO CHECK IF USER IS GUEST
   bool _isGuestUser() {
     final user = FirebaseAuth.instance.currentUser;
     return user == null || user.isAnonymous;
   }
 
-  // ADD THIS METHOD TO SHOW GUEST USER ERROR
   void _showGuestUserError() {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
@@ -176,7 +174,6 @@ class _CourtDetailPageState extends State<CourtDetailPage> {
                       ],
                     ),
 
-                    // Join a Game Button - WITH DEBUGGING
                     const SizedBox(height: 20),
                     SizedBox(
                       width: double.infinity,
