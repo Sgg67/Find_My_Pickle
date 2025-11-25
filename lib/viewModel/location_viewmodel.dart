@@ -124,7 +124,7 @@ class LocationViewModel with ChangeNotifier {
     double endLng
   ) async {
     try {
-      final distance = await Geolocator.distanceBetween(
+      final distance = Geolocator.distanceBetween(
         startLat, startLng, endLat, endLng
       );
       return distance;

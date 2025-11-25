@@ -1,4 +1,3 @@
-import 'package:find_my_pickle/services/authentication_service.dart';
 import 'package:find_my_pickle/view/court_results_by_location.dart';
 import 'package:find_my_pickle/view/court_results_page.dart';
 import 'package:find_my_pickle/view/home_page.dart';

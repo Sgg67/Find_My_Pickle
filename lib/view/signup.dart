@@ -1,5 +1,4 @@
 import 'package:find_my_pickle/view/search.dart';
-import 'package:find_my_pickle/services/authentication_service.dart';
 import 'package:find_my_pickle/view/login.dart';
 import 'package:find_my_pickle/viewModel/auth_viewmodel.dart';
 import 'package:flutter/gestures.dart';

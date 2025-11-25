@@ -351,8 +351,8 @@ class _JoinAGameState extends State<JoinAGame> {
                             radius: 12,
                           )
                         : const CircleAvatar(
-                            child: Icon(Icons.person, size: 12),
                             radius: 12,
+                            child: Icon(Icons.person, size: 12),
                           ),
                     label: Text(
                       player.userName,
