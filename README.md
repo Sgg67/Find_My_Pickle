@@ -100,6 +100,7 @@ Here is a link for the app Walkthrough video
 https://photos.app.goo.gl/tdLvqAYpbbNfWEc5A
 
 ## MVVM Walkthrough video
-<video controls src="20251126-0054-43.2557266.mp4" title="Title"></video>
+Here is a link for the MVVM Overview
+https://photos.app.goo.gl/qh6nteL3nUg9GAgy8
 
 
