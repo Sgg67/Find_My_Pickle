@@ -103,4 +103,25 @@ https://photos.app.goo.gl/tdLvqAYpbbNfWEc5A
 Here is a link for the MVVM Overview
 https://photos.app.goo.gl/qh6nteL3nUg9GAgy8
 
+## Firebase Services
+- **Authentication** (`firebase_auth`):
+  - Handles secure user sign-in via Email/Password.
+  - Integration with **Google Sign-In**.
+  - Anonymous/Guest login support.
+- **Cloud Firestore** (`cloud_firestore`):
+  - **User Management:** Stores profiles and account metadata.
+  - **Game Sessions:** Real-time synchronization of active pickleball games, player lists, and court availability.
+- **Storage** (`firebase_storage`):
+  - Secure hosting for user-uploaded content (e.g., profile pictures).
+- **Core** (`firebase_core`):
+  - Manages app initialization and platform-specific configuration.
 
+## Maps & Location APIs
+- **Google Places API:**
+  - Fetches detailed information about pickleball courts (names, addresses, photos, ratings).
+- **Google Geocoding API:**
+  - Converts user search queries (city names) into geographic coordinates (lat/lng).
+- **Google Directions API:**
+  - Calculates routes and navigation paths to selected courts.
+- **Geolocator** (`geolocator`):
+  - Accesses the device's native GPS to find courts near the user's current location.
