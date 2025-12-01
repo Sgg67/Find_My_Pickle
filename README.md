@@ -127,5 +127,5 @@ https://photos.app.goo.gl/qh6nteL3nUg9GAgy8
   - Accesses the device's native GPS to find courts near the user's current location
 
 ## MVVM Diagram
-<img width="387" height="633" alt="image" src="https://github.com/user-attachments/assets/dc9b6edf-7946-49f8-a50a-48bc6196081b" />
-[Model.pdf](https://github.com/user-attachments/files/23861785/Model.pdf)
+- <img width="387" height="633" alt="image" src="https://github.com/user-attachments/assets/dc9b6edf-7946-49f8-a50a-48bc6196081b" />
+- [Model.pdf](https://github.com/user-attachments/files/23861785/Model.pdf)
