@@ -78,6 +78,7 @@ class _CourtResultsByLocationState extends State<CourtResultsByLocation> {
     }
   }
 
+  // request for permission for location
   Future<bool> _handleLocationPermissions() async {
     LocationPermission permission = await _locationViewModel.checkPermissionStatus();
     
@@ -102,6 +103,7 @@ class _CourtResultsByLocationState extends State<CourtResultsByLocation> {
            permission == LocationPermission.always;
   }
 
+  // show an error related to location
   void _showLocationServiceError() {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(

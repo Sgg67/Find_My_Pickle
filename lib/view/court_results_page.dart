@@ -134,6 +134,7 @@ class _CourtResultsPageState extends State<CourtResultsPage>
   }
 }
 
+// court card in the court list
 class CourtCard extends StatelessWidget {
   final Map<String, dynamic> court;
 

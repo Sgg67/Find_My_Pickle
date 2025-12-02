@@ -37,6 +37,8 @@ class FakeAuthService implements AuthService {
 
 // Stub for SearchPage
 class SearchPage extends StatelessWidget {
+  const SearchPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(body: Center(child: Text('Search Page')));
@@ -45,6 +47,8 @@ class SearchPage extends StatelessWidget {
 
 // Stub for Signup
 class Signup extends StatelessWidget {
+  const Signup({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(body: Center(child: Text('Signup Page')));

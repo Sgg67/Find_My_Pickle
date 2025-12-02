@@ -1,4 +1,3 @@
-import 'package:find_my_pickle/services/authentication_service.dart';
 import 'package:find_my_pickle/view/court_results_by_location.dart';
 import 'package:find_my_pickle/view/court_results_page.dart';
 import 'package:find_my_pickle/view/home_page.dart';
@@ -38,79 +37,135 @@ class _SearchPageState extends State<SearchPage> {
   }
 
   Future<void> _loadProfilePicture() async {
+  try {
+    if (currentUser == null || _isGuestUser) return;
+    
+    setState(() => isLoadingProfile = true);
+    
+    final storageRef = FirebaseStorage.instance.ref();
+    final imageRef = storageRef.child("users/${currentUser!.uid}/profile.jpg");
+    
+    // Check if file exists first
     try {
-      if (currentUser == null || _isGuestUser) return;
-      
-      final storageRef = FirebaseStorage.instance.ref();
-      final imageRef = storageRef.child("users/${currentUser!.uid}/profile.jpg");
-      final imageBytes = await imageRef.getData();
+      final metadata = await imageRef.getMetadata();
+      final imageBytes = await imageRef.getData(1048576); // 1MB max
       
       if (imageBytes != null && mounted) {
-        setState(() => profileImage = imageBytes);
+        setState(() {
+          profileImage = imageBytes;
+          isLoadingProfile = false;
+        });
+      } else if (mounted) {
+        setState(() => isLoadingProfile = false);
       }
     } catch (e) {
-      print("Profile picture cannot be found: $e");
+      // File doesn't exist or other error
+      if (mounted) {
+        setState(() => isLoadingProfile = false);
+      }
+      print("No existing profile picture or error loading: $e");
+    }
+    
+  } catch (e) {
+    print("Profile picture cannot be found: $e");
+    if (mounted) {
+      setState(() => isLoadingProfile = false);
     }
   }
+}
 
   Future<void> _onProfilePictureTap() async {
-    if (_isGuestUser) {
-      _showGuestUserError();
-      return;
-    }
+  if (_isGuestUser) {
+    _showGuestUserError();
+    return;
+  }
 
-    final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-    if (image == null) return;
-
-    setState(() => isLoadingProfile = true);
-
-    final PermissionStatus status = await Permission.photos.request();
-    
-    if (status.isDenied) {
+  // Request permission first
+  final PermissionStatus status = await Permission.photos.request();
+  
+  if (status.isDenied) {
+    if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Photo library permission is required to change profile picture.'),
           backgroundColor: Colors.red,
         ),
       );
-      setState(() => isLoadingProfile = false);
-      return;
     }
+    return;
+  }
+  
+  if (status.isPermanentlyDenied) {
+    _showPermissionDeniedDialog();
+    return;
+  }
+
+  // Only proceed if permission is granted
+  if (!status.isGranted) {
+    return;
+  }
+
+  try {
+    final ImagePicker picker = ImagePicker();
+    final XFile? image = await picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 500,
+      maxHeight: 500,
+      imageQuality: 80,
+    );
     
-    if (status.isPermanentlyDenied) {
-      _showPermissionDeniedDialog();
-      setState(() => isLoadingProfile = false);
-      return;
+    if (image == null) return;
+
+    if (mounted) {
+      setState(() => isLoadingProfile = true);
     }
 
-    try {
-      final imageBytes = await image.readAsBytes();
-      
-      final storageRef = FirebaseStorage.instance.ref();
-      final imageRef = storageRef.child("users/${currentUser!.uid}/profile.jpg"); 
-      await imageRef.putData(imageBytes);
-      
-      if (mounted) {
-        setState(() {
-          profileImage = imageBytes;
-          isLoadingProfile = false;
-        });
-      }
+    final imageBytes = await image.readAsBytes();
+    
+    // Upload to Firebase Storage
+    final storageRef = FirebaseStorage.instance.ref();
+    final imageRef = storageRef.child("users/${currentUser!.uid}/profile.jpg");
+    
+    // Upload with metadata
+    await imageRef.putData(
+      imageBytes,
+      SettableMetadata(
+        contentType: 'image/jpeg',
+        customMetadata: {'uploaded_by': currentUser!.uid},
+      ),
+    );
+    
+    // Get download URL (optional but useful)
+    await imageRef.getDownloadURL();
+
+    if (mounted) {
+      setState(() {
+        profileImage = imageBytes;
+        isLoadingProfile = false;
+      });
       
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Profile picture updated!')),
+        const SnackBar(
+          content: Text('Profile picture updated!'),
+          backgroundColor: Colors.green,
+        ),
       );
-    } catch (e) {
-      print("Error uploading image: $e");
-      if (mounted) {
-        setState(() => isLoadingProfile = false);
-      }
+    }
+    
+  } catch (e) {
+    print("Error uploading image: $e");
+    if (mounted) {
+      setState(() => isLoadingProfile = false);
+      
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: ${e.toString()}')),
+        SnackBar(
+          content: Text('Error: ${e.toString()}'),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }
+}
 
   void _showPermissionDeniedDialog() {
     showDialog(

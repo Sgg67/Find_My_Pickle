@@ -45,6 +45,7 @@ class _CourtDetailPageState extends State<CourtDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    // add the details of a particular court
     final name = widget.court['name'] ?? 'Unknown Court';
     final vicinity = widget.court['vicinity'] ?? 'No address available';
     final photoUrl = widget.court['photo_url'];

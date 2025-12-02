@@ -1,4 +1,6 @@
 // create a model that will be used throughout the view models
+
+// court model that has the name of the court and the distance
 class CourtListModel {
   final String name;
   final String vicinity;

@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+// details about a particular court
 class GameModel {
   final String id;
   final String courtId;
@@ -19,6 +20,7 @@ class GameModel {
     required this.createdBy,
   });
 
+  // gets the information about a particular court from firebase
   factory GameModel.fromFirestore(Map<String, dynamic> data, String id) {
     return GameModel(
       id: id,
@@ -48,6 +50,7 @@ class GameModel {
   int get spotsLeft => maxPlayers - players.length;
 }
 
+// information about a particular player
 class Player {
   final String userId;
   final String userName;
@@ -61,6 +64,7 @@ class Player {
     required this.joinedAt,
   });
 
+  // map player to courts
   factory Player.fromMap(Map<String, dynamic> data) {
     return Player(
       userId: data['userId'] ?? '',

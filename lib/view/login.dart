@@ -353,7 +353,7 @@ class _LoginState extends State<Login> with SingleTickerProviderStateMixin {
       },
     );
   }
-
+  // show the dialog when someone clicks the button to reset password
   void _showForgotPasswordDialog(
       BuildContext context, AuthViewModel authViewModel) {
     TextEditingController emailController =

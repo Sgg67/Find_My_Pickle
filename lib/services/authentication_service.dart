@@ -1,5 +1,4 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -13,6 +12,7 @@ class AuthService {
   // Stream of auth state changes
   Stream<User?> get authStateChanges => _auth.authStateChanges();
 
+// signup logic for firebase
   Future<void> signup({
     required String email,
     required String password,
@@ -28,13 +28,13 @@ class AuthService {
     if (trimmedEmail.isEmpty) {
       throw Exception('Please enter a valid email address');
     }
-
+    // try to create user
     try {
       await _auth.createUserWithEmailAndPassword(
         email: trimmedEmail,
         password: password
       );
-    
+    // if the accoutn creation is not succesful throw an error
     } on FirebaseAuthException catch(e) {
       String message = '';
       if (e.code == 'weak-password') {
@@ -68,7 +68,7 @@ class AuthService {
       throw Exception('Login failed. Please check your email and password.');
     }
   }
-
+  // forgot password if successful sends a password reset email using password reset method
   Future<void> forgotPassword({required String email}) async {
     try {
       await _auth.sendPasswordResetEmail(email: email);
