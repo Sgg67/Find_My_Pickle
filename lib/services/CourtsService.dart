@@ -5,7 +5,6 @@ import 'package:http/http.dart' as http;
 
 // get the pickleball courts near you using the google maps places api
 class CourtsService {
-  // add a const api key
   static final String _apiKey = dotenv.env['MAP_KEY']!;
   // set the key word to pickle ball courts
   static const String _keyword = "pickleball court";

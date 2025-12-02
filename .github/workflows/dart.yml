@@ -1,40 +1,74 @@
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-
-name: Dart
+name: Flutter CI
 
 on:
   pull_request:
-    branches:
-      - dev
-      - test
+    branches: [main, dev]
   push:
-    branches:
-      - dev
-      - test
-      - main
+    branches: [main, dev, test]
 
 jobs:
-  test: 
-    name: Run Tests
+  test:
     runs-on: ubuntu-latest
+    env:
+      MAP_KEY: ${{ secrets.MAP_KEY }}
+      WEB_FIRE: ${{ secrets.WEB_FIRE }}
+      AND_FIRE: ${{ secrets.AND_FIRE }}
+      IOS_FIRE: ${{ secrets.IOS_FIRE }}
+    
     steps:
-      #1 Checkout Repository
-      - name: Checkout Repository
-        uses: actions/checkout@v3
-
-      #2 Setup Flutter
-      - name: Set Up Flutter
+      - uses: actions/checkout@v3
+      
+      - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: 'stable'
-
-      #3 Install Dependencies
-      - name: Install Dependencies
+      
+      - name: Install dependencies
         run: flutter pub get
-
-      #4 Run Tests
-      - name: Run Tests
-        run: flutter test
+      
+      - name: Run tests with secrets
+        run: |
+          flutter test \
+            --dart-define=MAP_KEY=$MAP_KEY \
+            --dart-define=WEB_FIRE=$WEB_FIRE \
+            --dart-define=AND_FIRE=$AND_FIRE \
+            --dart-define=IOS_FIRE=$IOS_FIRE
+  
+  build:
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    env:
+      MAP_KEY: ${{ secrets.MAP_KEY }}
+      WEB_FIRE: ${{ secrets.WEB_FIRE }}
+      AND_FIRE: ${{ secrets.AND_FIRE }}
+      IOS_FIRE: ${{ secrets.IOS_FIRE }}
+      MAC_FIRE: ${{ secrets.MAC_FIRE }}
+      WIND_FIRE: ${{ secrets.WIND_FIRE }}
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+      
+      - name: Build APK
+        run: |
+          flutter build apk --release \
+            --dart-define=MAP_KEY=$MAP_KEY \
+            --dart-define=WEB_FIRE=$WEB_FIRE \
+            --dart-define=AND_FIRE=$AND_FIRE \
+            --dart-define=IOS_FIRE=$IOS_FIRE \
+            --dart-define=MAC_FIRE=$MAC_FIRE \
+            --dart-define=WIND_FIRE=$WIND_FIRE
+      
+      - name: Build iOS (if needed)
+        run: |
+          flutter build ios --release --no-codesign \
+            --dart-define=MAP_KEY=$MAP_KEY \
+            --dart-define=WEB_FIRE=$WEB_FIRE \
+            --dart-define=AND_FIRE=$AND_FIRE \
+            --dart-define=IOS_FIRE=$IOS_FIRE \
+            --dart-define=MAC_FIRE=$MAC_FIRE \
+            --dart-define=WIND_FIRE=$WIND_FIRE
