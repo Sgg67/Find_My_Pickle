@@ -130,3 +130,62 @@ https://photos.app.goo.gl/qh6nteL3nUg9GAgy8
 <img width="387" height="633" alt="image" src="https://github.com/user-attachments/assets/dc9b6edf-7946-49f8-a50a-48bc6196081b" />
 
 [Model.pdf](https://github.com/user-attachments/files/23861785/Model.pdf)
+
+## 📦 Dependencies
+
+This project relies on the following packages and plugins:
+
+### Core & State Management
+| Package | Version |
+| :--- | :--- |
+| **Flutter SDK** | Stable |
+| **Provider** | `^6.1.5+1` |
+| **HTTP** | `^1.5.0` |
+
+### Firebase & Backend
+| Package | Version |
+| :--- | :--- |
+| **Firebase Core** | `^4.2.1` |
+| **Firebase Auth** | `^6.1.2` |
+| **Google Sign In** | `^6.1.5` | 
+| **Cloud Firestore** | `^6.1.0` | 
+| **Firebase Storage** | `^13.0.4` |
+
+### UI & Design
+| Package | Version |
+| :--- | :--- |
+| **Google Fonts** | `^6.1.0` |
+| **Animated Text Kit**| `^4.2.2` |
+| **Fluttertoast** | `^8.2.4` |
+| **Custom Button Builder**| `^0.0.1` |
+| **Cupertino Icons** | `^1.0.8` |
+
+### Device & Native Features
+| Package | Version | 
+| :--- | :--- | 
+| **Geolocator** | `^14.0.2` | 
+| **Image Picker** | `^1.0.7` |
+| **URL Launcher** | `^6.1.11` | 
+| **Share Plus** | `^7.0.1` |
+| **Permission Handler**| `^11.0.0` |
+
+---
+
+## Build Instructions
+
+### Prerequisites
+* **Dart SDK:** Version `>=3.9.0 <4.0.0`
+* **Flutter SDK:** Latest Stable (Compatible with the Dart SDK requirement)
+
+### 1. Setup
+Clone the repository and install the dependencies:
+```bash
+git clone [https://github.com/your-username/find_my_pickle.git](https://github.com/your-username/find_my_pickle.git)
+cd find_my_pickle
+flutter pub get
+```
+
+### 2. Running the App
+```bash
+flutter run
+```
