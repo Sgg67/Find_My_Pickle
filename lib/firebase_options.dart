@@ -3,6 +3,7 @@
 import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, kIsWeb, TargetPlatform;
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 /// Default [FirebaseOptions] for use with your Firebase apps.
 ///
@@ -40,8 +41,8 @@ class DefaultFirebaseOptions {
     }
   }
 
-  static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyDdDiExHs9vxv_zQ1HGk1wBKPiozlJd16A',
+  static final FirebaseOptions web = FirebaseOptions(
+    apiKey: dotenv.env['WEB_FIRE']!,
     appId: '1:617928126569:web:d957f193e9db7e20a332f8',
     messagingSenderId: '617928126569',
     projectId: 'find-my-pickle',
@@ -50,16 +51,16 @@ class DefaultFirebaseOptions {
     measurementId: 'G-Z5NT15VHPP',
   );
 
-  static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyBSdV0HmI7DZhYbu5JPWOO1xKiyCrMvPYA',
+  static final FirebaseOptions android = FirebaseOptions(
+    apiKey: dotenv.env['AND_FIRE']!,
     appId: '1:617928126569:android:c08acfaa12921f0ca332f8',
     messagingSenderId: '617928126569',
     projectId: 'find-my-pickle',
     storageBucket: 'find-my-pickle.firebasestorage.app',
   );
 
-  static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyCC7m6LcanPsv2p4DMERWIelruqKqY81Mg',
+  static final FirebaseOptions ios = FirebaseOptions(
+    apiKey: dotenv.env['IOS_FIRE']!,
     appId: '1:617928126569:ios:848b059d99cf3114a332f8',
     messagingSenderId: '617928126569',
     projectId: 'find-my-pickle',
@@ -68,8 +69,8 @@ class DefaultFirebaseOptions {
     iosBundleId: 'com.example.findMyPickle',
   );
 
-  static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyCC7m6LcanPsv2p4DMERWIelruqKqY81Mg',
+  static final FirebaseOptions macos = FirebaseOptions(
+    apiKey: dotenv.env['MAC_FIRE']!,
     appId: '1:617928126569:ios:848b059d99cf3114a332f8',
     messagingSenderId: '617928126569',
     projectId: 'find-my-pickle',
@@ -78,8 +79,8 @@ class DefaultFirebaseOptions {
     iosBundleId: 'com.example.findMyPickle',
   );
 
-  static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyDdDiExHs9vxv_zQ1HGk1wBKPiozlJd16A',
+  static final FirebaseOptions windows = FirebaseOptions(
+    apiKey: dotenv.env['WIND_FIRE']!,
     appId: '1:617928126569:web:38b3f66523dd8939a332f8',
     messagingSenderId: '617928126569',
     projectId: 'find-my-pickle',
