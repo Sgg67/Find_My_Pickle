@@ -97,7 +97,7 @@ the doubles games of your dreams.
 
 ## App Walkthrough
 Here is a link for the app Walkthrough video
-https://photos.app.goo.gl/tdLvqAYpbbNfWEc5A
+https://drive.google.com/file/d/1M_RKwXKpkZg9Om2wZ3Xd0-F__V7CU_7g/view?usp=drivesdk
 
 ## MVVM Walkthrough video
 Here is a link for the MVVM Overview
@@ -185,7 +185,23 @@ cd find_my_pickle
 flutter pub get
 ```
 
-### 2. Running the App
+### 2. Generate API KEYS
+You will need 2 sets of API KEYS to run this application
+1. Google MAPS API KEY
+2. FIREBASE API KEYs
+
+### 3. Add ENV file
+Create a .env File in the root directory and it should look like:
+```
+MAP_KEY = Google Maps API KEY
+WEB_FIRE = FIREBASE API KEY FOR WEB
+AND_FIRE = FIREBASE API KEY FOR ANDROID
+IOS_FIRE = FIREBASE API KEY FOR IOS
+MAC_FIRE = FIREBASE API KEY FOR MAC
+WIND_FIRE = FIREBASE API KEY FOR WINDOWS
+```
+
+### 4. Running the App
 ```bash
 flutter run
 ```
