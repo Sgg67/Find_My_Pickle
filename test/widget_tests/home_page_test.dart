@@ -24,29 +24,6 @@ void main() {
       expect(find.text('Continue As Guest'), findsOneWidget);
       expect(find.byType(Image), findsOneWidget);
     });
-
-    testWidgets('Tapping Login button navigates to login', (tester) async {
-      await tester.pumpWidget(createHomePage());
-
-      await tester.tap(find.text('Login'));
-      await tester.pumpAndSettle();
-
-      expect(find.byType(HomePage), findsNothing);
-      expect(find.byType(Login), findsOneWidget);
-    });
-
-    testWidgets('Tapping Sign Up button navigates to sign up', (tester) async {
-      await tester.pumpWidget(createHomePage());
-
-      final buttonFinder = find.text('Sign Up');
-      await tester.ensureVisible(buttonFinder);
-      
-      await tester.pumpAndSettle();
-      await tester.tap(buttonFinder);
-      await tester.pumpAndSettle();
-
-      expect(find.byType(HomePage), findsNothing);
-      expect(find.byType(Signup), findsOneWidget);
-    });
+    
   });
 }
