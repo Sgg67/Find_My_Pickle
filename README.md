@@ -97,7 +97,7 @@ the doubles games of your dreams.
 
 ## App Walkthrough
 Here is a link for the app Walkthrough video
-https://photos.app.goo.gl/tdLvqAYpbbNfWEc5A
+https://drive.google.com/file/d/1M_RKwXKpkZg9Om2wZ3Xd0-F__V7CU_7g/view?usp=drivesdk
 
 ## MVVM Walkthrough video
 Here is a link for the MVVM Overview
