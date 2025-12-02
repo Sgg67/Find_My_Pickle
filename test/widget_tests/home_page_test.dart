@@ -1,6 +1,4 @@
 import 'package:find_my_pickle/view/home_page.dart';
-import 'package:find_my_pickle/view/login.dart';
-import 'package:find_my_pickle/view/signup.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
