@@ -191,7 +191,7 @@ You will need 2 sets of API KEYS to run this application
 2. FIREBASE API KEYs
 
 ### 3. Add ENV file
-Create an .env File in the root directory and it should look like:
+Create a .env File in the root directory and it should look like:
 ```
 MAP_KEY = Google Maps API KEY
 WEB_FIRE = FIREBASE API KEY FOR WEB
