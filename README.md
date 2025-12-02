@@ -180,7 +180,7 @@ This project relies on the following packages and plugins:
 ### 1. Setup
 Clone the repository and install the dependencies:
 ```bash
-git clone [https://github.com/your-username/find_my_pickle.git](https://github.com/your-username/find_my_pickle.git)
+git clone https://github.com/Sgg67/find_my_pickle.git
 cd find_my_pickle
 flutter pub get
 ```
