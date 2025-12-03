@@ -25,7 +25,6 @@ jobs:
         with:
           channel: 'stable'
       
-      # CREATE DUMMY .env FILE HERE
       - name: Create dummy .env file for asset bundle
         run: |
           echo "# Dummy .env file for CI/CD asset bundle" > .env
@@ -42,56 +41,6 @@ jobs:
       - name: Run tests with secrets
         run: |
           flutter test \
-            --dart-define=MAP_KEY=$MAP_KEY \
-            --dart-define=WEB_FIRE=$WEB_FIRE \
-            --dart-define=AND_FIRE=$AND_FIRE \
-            --dart-define=IOS_FIRE=$IOS_FIRE \
-            --dart-define=MAC_FIRE=$MAC_FIRE \
-            --dart-define=WIND_FIRE=$WIND_FIRE
-  
-  build:
-    runs-on: ubuntu-latest
-    needs: test
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    
-    env:
-      MAP_KEY: ${{ secrets.MAP_KEY }}
-      WEB_FIRE: ${{ secrets.WEB_FIRE }}
-      AND_FIRE: ${{ secrets.AND_FIRE }}
-      IOS_FIRE: ${{ secrets.IOS_FIRE }}
-      MAC_FIRE: ${{ secrets.MAC_FIRE }}
-      WIND_FIRE: ${{ secrets.WIND_FIRE }}
-    
-    steps:
-      - uses: actions/checkout@v3
-      
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-      
-      # CREATE DUMMY .env FILE HERE TOO
-      - name: Create dummy .env file for asset bundle
-        run: |
-          echo "# Dummy .env file for CI/CD asset bundle" > .env
-          echo "MAP_KEY=dummy_value_for_ci" >> .env
-          echo "WEB_FIRE=dummy_value_for_ci" >> .env
-          echo "AND_FIRE=dummy_value_for_ci" >> .env
-          echo "IOS_FIRE=dummy_value_for_ci" >> .env
-          echo "MAC_FIRE=dummy_value_for_ci" >> .env
-          echo "WIND_FIRE=dummy_value_for_ci" >> .env
-      
-      - name: Build APK
-        run: |
-          flutter build apk --release \
-            --dart-define=MAP_KEY=$MAP_KEY \
-            --dart-define=WEB_FIRE=$WEB_FIRE \
-            --dart-define=AND_FIRE=$AND_FIRE \
-            --dart-define=IOS_FIRE=$IOS_FIRE \
-            --dart-define=MAC_FIRE=$MAC_FIRE \
-            --dart-define=WIND_FIRE=$WIND_FIRE
-      
-      - name: Build iOS (if needed)
-        run: |
-          flutter build ios --release --no-codesign \
             --dart-define=MAP_KEY=$MAP_KEY \
             --dart-define=WEB_FIRE=$WEB_FIRE \
             --dart-define=AND_FIRE=$AND_FIRE \
