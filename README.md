@@ -184,13 +184,7 @@ git clone https://github.com/Sgg67/find_my_pickle.git
 cd find_my_pickle
 flutter pub get
 ```
-
-### 2. Generate API KEYS
-You will need 2 sets of API KEYS to run this application
-1. Google MAPS API KEY
-2. FIREBASE API KEYs
-
-### 3. Add ENV file
+### 2. Add ENV file
 Create a .env File in the root directory and it should look like:
 ```
 MAP_KEY = Google Maps API KEY
@@ -200,8 +194,7 @@ IOS_FIRE = FIREBASE API KEY FOR IOS
 MAC_FIRE = FIREBASE API KEY FOR MAC
 WIND_FIRE = FIREBASE API KEY FOR WINDOWS
 ```
-
-### 4. Running the App
+### 3. Running the App
 ```bash
 flutter run
 ```
