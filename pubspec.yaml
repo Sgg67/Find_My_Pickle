@@ -28,6 +28,7 @@ dependencies:
   firebase_storage: ^13.0.4
   permission_handler: ^11.0.0
   flutter_dotenv: ^6.0.0
+  
 
 dev_dependencies:
   flutter_test:
@@ -40,6 +41,7 @@ flutter:
   
   assets:
     - assets/my_pickleball_image.jpeg
+    - .env
 
 # Flutter Launcher Icons configuration - moved outside of flutter section
 flutter_icons:

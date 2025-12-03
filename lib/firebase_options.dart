@@ -3,7 +3,7 @@
 import 'package:find_my_pickle/secrets_config/app_secrets.dart';
 import 'package:firebase_core/firebase_core.dart' show FirebaseOptions;
 import 'package:flutter/foundation.dart'
-    show defaultTargetPlatform, kIsWeb, TargetPlatform;
+show defaultTargetPlatform, kIsWeb, TargetPlatform;
 
 /// Default [FirebaseOptions] for use with your Firebase apps.
 ///
@@ -18,74 +18,68 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      return web;
+      return FirebaseOptions(
+        apiKey: AppSecrets.webFire, // Use from AppSecrets
+        appId: '1:708374722404:web:603e7719bc29d8b6e62c71',
+        messagingSenderId: '708374722404',
+        projectId: 'find-my-pickle-c1089',
+        authDomain: 'find-my-pickle-c1089.firebaseapp.com',
+        storageBucket: 'find-my-pickle-c1089.firebasestorage.app',
+        measurementId: 'G-GKCWJBQ8S1',
+      );
     }
+    
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
-        return android;
+        return FirebaseOptions(
+          apiKey: AppSecrets.andFire, // Use from AppSecrets
+          appId: '1:708374722404:android:1a054e53224b4ac5e62c71',
+          messagingSenderId: '708374722404',
+          projectId: 'find-my-pickle-c1089',
+          storageBucket: 'find-my-pickle-c1089.firebasestorage.app',
+        );
+        
       case TargetPlatform.iOS:
-        return ios;
+        return FirebaseOptions(
+          apiKey: AppSecrets.iosFire, // Use from AppSecrets
+          appId: '1:708374722404:ios:44359ba96e1e03b1e62c71',
+          messagingSenderId: '708374722404',
+          projectId: 'find-my-pickle-c1089',
+          storageBucket: 'find-my-pickle-c1089.firebasestorage.app',
+          iosBundleId: 'com.example.findMyPickle',
+        );
+        
       case TargetPlatform.macOS:
-        return macos;
+        return FirebaseOptions(
+          apiKey: AppSecrets.macFire, // Use from AppSecrets
+          appId: '1:708374722404:ios:44359ba96e1e03b1e62c71',
+          messagingSenderId: '708374722404',
+          projectId: 'find-my-pickle-c1089',
+          storageBucket: 'find-my-pickle-c1089.firebasestorage.app',
+          iosBundleId: 'com.example.findMyPickle',
+        );
+        
       case TargetPlatform.windows:
-        return windows;
+        return FirebaseOptions(
+          apiKey: AppSecrets.windFire, // Use from AppSecrets
+          appId: '1:708374722404:web:a5f7a548e133f930e62c71',
+          messagingSenderId: '708374722404',
+          projectId: 'find-my-pickle-c1089',
+          authDomain: 'find-my-pickle-c1089.firebaseapp.com',
+          storageBucket: 'find-my-pickle-c1089.firebasestorage.app',
+          measurementId: 'G-R5WCDXMB1L',
+        );
+        
       case TargetPlatform.linux:
         throw UnsupportedError(
           'DefaultFirebaseOptions have not been configured for linux - '
           'you can reconfigure this by running the FlutterFire CLI again.',
         );
+        
       default:
         throw UnsupportedError(
           'DefaultFirebaseOptions are not supported for this platform.',
         );
     }
   }
-
-  static final FirebaseOptions web = FirebaseOptions(
-    apiKey: AppSecrets.webFire,
-    appId: '1:617928126569:web:d957f193e9db7e20a332f8',
-    messagingSenderId: '617928126569',
-    projectId: 'find-my-pickle',
-    authDomain: 'find-my-pickle.firebaseapp.com',
-    storageBucket: 'find-my-pickle.firebasestorage.app',
-    measurementId: 'G-Z5NT15VHPP',
-  );
-
-  static final FirebaseOptions android = FirebaseOptions(
-    apiKey: AppSecrets.andFire,
-    appId: '1:617928126569:android:c08acfaa12921f0ca332f8',
-    messagingSenderId: '617928126569',
-    projectId: 'find-my-pickle',
-    storageBucket: 'find-my-pickle.firebasestorage.app',
-  );
-
-  static final FirebaseOptions ios = FirebaseOptions(
-    apiKey: AppSecrets.iosFire,
-    appId: '1:617928126569:ios:848b059d99cf3114a332f8',
-    messagingSenderId: '617928126569',
-    projectId: 'find-my-pickle',
-    storageBucket: 'find-my-pickle.firebasestorage.app',
-    iosClientId: '617928126569-384ngrab6s3pvuv3gd4ah1vgu8rajq8e.apps.googleusercontent.com',
-    iosBundleId: 'com.example.findMyPickle',
-  );
-
-  static final FirebaseOptions macos = FirebaseOptions(
-    apiKey: AppSecrets.macFire,
-    appId: '1:617928126569:ios:848b059d99cf3114a332f8',
-    messagingSenderId: '617928126569',
-    projectId: 'find-my-pickle',
-    storageBucket: 'find-my-pickle.firebasestorage.app',
-    iosClientId: '617928126569-384ngrab6s3pvuv3gd4ah1vgu8rajq8e.apps.googleusercontent.com',
-    iosBundleId: 'com.example.findMyPickle',
-  );
-
-  static final FirebaseOptions windows = FirebaseOptions(
-    apiKey: AppSecrets.windFire,
-    appId: '1:617928126569:web:38b3f66523dd8939a332f8',
-    messagingSenderId: '617928126569',
-    projectId: 'find-my-pickle',
-    authDomain: 'find-my-pickle.firebaseapp.com',
-    storageBucket: 'find-my-pickle.firebasestorage.app',
-    measurementId: 'G-G0ZTS11H8V',
-  );
 }

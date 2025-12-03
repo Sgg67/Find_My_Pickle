@@ -1,5 +1,5 @@
 // lib/core/config/app_secrets.dart
-import 'dart:math' as Math;
+import 'dart:math' as math; // Changed from 'Math' to 'math'
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -186,7 +186,7 @@ class AppSecrets {
     debugPrint('🔐 App Secrets Configuration:');
     allSecrets.forEach((key, value) {
       if (value.isNotEmpty) {
-        debugPrint('  $key: ${value.substring(0, Math.min(8, value.length))}...');
+        debugPrint('  $key: ${value.substring(0, math.min(8, value.length))}...'); // Fixed: Math → math
       } else {
         debugPrint('  $key: ❌ NOT SET');
       }
