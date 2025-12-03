@@ -1,11 +1,11 @@
 // import data and http libraries
 import 'dart:convert';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:find_my_pickle/secrets_config/app_secrets.dart';
 import 'package:http/http.dart' as http;
 
 // get the pickleball courts near you using the google maps places api
 class CourtsService {
-  static final String _apiKey = dotenv.env['MAP_KEY']!;
+  static final String _apiKey = AppSecrets.mapKey;
   // set the key word to pickle ball courts
   static const String _keyword = "pickleball court";
 

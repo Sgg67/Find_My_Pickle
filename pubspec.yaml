@@ -40,7 +40,6 @@ flutter:
   
   assets:
     - assets/my_pickleball_image.jpeg
-    - .env
 
 # Flutter Launcher Icons configuration - moved outside of flutter section
 flutter_icons:
